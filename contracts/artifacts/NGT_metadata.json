@@ -1,0 +1,272 @@
+{
+	"compiler": {
+		"version": "0.8.7+commit.e28d00a7"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "spender",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "value",
+						"type": "uint256"
+					}
+				],
+				"name": "Approval",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint8",
+						"name": "status",
+						"type": "uint8"
+					}
+				],
+				"name": "ChangeMarketStatusEvent",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "spender",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "value",
+						"type": "uint256"
+					}
+				],
+				"name": "Transfer",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_spender",
+						"type": "address"
+					}
+				],
+				"name": "allowance",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "remaining",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_spender",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_value",
+						"type": "uint256"
+					}
+				],
+				"name": "approve",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "success",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_owner",
+						"type": "address"
+					}
+				],
+				"name": "balanceOf",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "balance",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "decimals",
+				"outputs": [
+					{
+						"internalType": "uint8",
+						"name": "",
+						"type": "uint8"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "name",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "symbol",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "totalSupply",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "viewtotalSupply",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"meta-mall/contracts/nft-loan.sol": "ngt"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol": {
+			"keccak256": "0xa82b58eca1ee256be466e536706850163d2ec7821945abd6b4778cfb3bee37da",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6e75cf83beb757b8855791088546b8337e9d4684e169400c20d44a515353b708",
+				"dweb:/ipfs/QmYvPafLfoquiDMEj7CKHtvbgHu7TJNPSVPSCjrtjV8HjV"
+			]
+		},
+		"meta-mall/contracts/IERC165.sol": {
+			"keccak256": "0xd41f80d7225ad140ac46b21cf405be3f8e38f77a1a036cf3c019a4c6c1ced0e9",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://dabe48bbe2646aa18eaddc3d3e084ff10a1a5d11227c652dbb9cb2939b7ae88b",
+				"dweb:/ipfs/QmYZPJhJA4D51bwFJwj852PRkzBxxYozoVd1wXj8exV6LA"
+			]
+		},
+		"meta-mall/contracts/IERC20.sol": {
+			"keccak256": "0x061f8ccc4d7f566336ef5521735e6c2a051495d48abaef455fab9bc7fc029402",
+			"license": "GPL-3.0",
+			"urls": [
+				"bzz-raw://7de59b9472f5f70a403386c0a76a79c1c63a7b6851da647f8079290461a8fdd4",
+				"dweb:/ipfs/QmWii7JjjexU9caTTfuZyQYvLV1z4HrMVccZuaM3m3cWGZ"
+			]
+		},
+		"meta-mall/contracts/IERC721.sol": {
+			"keccak256": "0x058d83ed9ddf262be884a28e3d9ec79769b4bb2462a00faa1c6cdca1c571768e",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://849737387b2db17470e4862df59936004f9038542e69afb902665954f518af13",
+				"dweb:/ipfs/Qma96vUugvuiPsqkN6TuGjuEoFGF5LLG2199baWxoFLQQ4"
+			]
+		},
+		"meta-mall/contracts/nft-loan.sol": {
+			"keccak256": "0xcb7fbb836d1bb5b165c3db29a0987631264099161a931f9c387b573b711b6ed4",
+			"urls": [
+				"bzz-raw://19c1d1f16f556e590ddb145742f049f78d80fdd630d6a5e47a39132bce85836f",
+				"dweb:/ipfs/QmRRW8ej2zRpxjP1AFC7RLoeVpGcq8un3A97THQtCYTS87"
+			]
+		}
+	},
+	"version": 1
+}

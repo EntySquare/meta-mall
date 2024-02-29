@@ -1,0 +1,16 @@
+# Use postgres/example user/password credentials
+version: '3.1'
+
+services:
+  pooluo-db:
+    image: postgres
+    container_name: loans-db
+    restart: always
+    ports:
+      - 5735:5432
+    environment:
+      POSTGRES_PASSWORD: loans123
+      POSTGRES_DB: loans
+      POSTGRES_USER: backend
+  #  volumes:
+  #    - /root/dbdata/wwcc:/var/lib/postgresql/data

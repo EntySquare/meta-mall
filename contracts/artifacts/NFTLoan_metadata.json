@@ -1,0 +1,244 @@
+{
+	"compiler": {
+		"version": "0.8.7+commit.e28d00a7"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_nftContract",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					}
+				],
+				"name": "depositNFT",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "loans",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "loanTime",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "flag",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					}
+				],
+				"name": "loansCount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "start",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "limit",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					}
+				],
+				"name": "loansList",
+				"outputs": [
+					{
+						"internalType": "uint256[]",
+						"name": "",
+						"type": "uint256[]"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "loansNumber",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "nftContract",
+				"outputs": [
+					{
+						"internalType": "contract IERC721",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					}
+				],
+				"name": "ownerOf",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					}
+				],
+				"name": "withdrawNFT",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"meta-mall/contracts/nft-loan.sol": "NFTLoan"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"meta-mall/contracts/IERC165.sol": {
+			"keccak256": "0xd41f80d7225ad140ac46b21cf405be3f8e38f77a1a036cf3c019a4c6c1ced0e9",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://dabe48bbe2646aa18eaddc3d3e084ff10a1a5d11227c652dbb9cb2939b7ae88b",
+				"dweb:/ipfs/QmYZPJhJA4D51bwFJwj852PRkzBxxYozoVd1wXj8exV6LA"
+			]
+		},
+		"meta-mall/contracts/IERC20.sol": {
+			"keccak256": "0x061f8ccc4d7f566336ef5521735e6c2a051495d48abaef455fab9bc7fc029402",
+			"license": "GPL-3.0",
+			"urls": [
+				"bzz-raw://7de59b9472f5f70a403386c0a76a79c1c63a7b6851da647f8079290461a8fdd4",
+				"dweb:/ipfs/QmWii7JjjexU9caTTfuZyQYvLV1z4HrMVccZuaM3m3cWGZ"
+			]
+		},
+		"meta-mall/contracts/IERC721.sol": {
+			"keccak256": "0x058d83ed9ddf262be884a28e3d9ec79769b4bb2462a00faa1c6cdca1c571768e",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://849737387b2db17470e4862df59936004f9038542e69afb902665954f518af13",
+				"dweb:/ipfs/Qma96vUugvuiPsqkN6TuGjuEoFGF5LLG2199baWxoFLQQ4"
+			]
+		},
+		"meta-mall/contracts/nft-loan.sol": {
+			"keccak256": "0x35571598e8199e6fdb4f3df9a8be7eb7bd93915cff7a52e3da730e0f3e90cb1e",
+			"urls": [
+				"bzz-raw://82b6aee30720cbf9d71055fe8958b386244e19cbea709526741680b765553cf8",
+				"dweb:/ipfs/QmavdwSXaLQZLSVJ6zje2rxRHtijoZNnhPhSiKSFPEqtEq"
+			]
+		}
+	},
+	"version": 1
+}
