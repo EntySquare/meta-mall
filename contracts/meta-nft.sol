@@ -9,6 +9,8 @@ contract METANFT is ERC721{
     IERC20 public usdtToken;
     IERC20 public uncToken;
     address public owner;
+    mapping(uint256 => uint256) usdtPrice;
+    mapping(uint256 => uint256) uncPrice;
 
     constructor(address _usdtTokenAddress,address _uncTokenAddress,address holder) ERC721("NFTContract", "NFTC") {
         usdtToken = IERC20(_usdtTokenAddress);
@@ -16,47 +18,60 @@ contract METANFT is ERC721{
         owner = holder;
     }
 
-    function mintNFT(address recipient, uint256 tokenId) external {
+    function mintNFT(address recipient, uint256 tokenId) external onlyManager{
         require(msg.sender == owner, "Only owner can mint NFTs");
         _safeMint(recipient, tokenId);
+        usdtPrice[tokenId] = 0;
+        uncPrice[tokenId] = 0;
     }
-    function mintNFTs(address[] memory recipients, uint256[] memory tokenIds) external {
+    function mintNFTs(address recipient, uint256[] memory tokenIds) external onlyManager{
         require(msg.sender == owner, "Only owner can mint NFTs");
-        require(recipients.length == tokenIds.length, "Array lengths mismatch");
-
-        for (uint256 i = 0; i < recipients.length; i++) {
-            _safeMint(recipients[i], tokenIds[i]);
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            _safeMint(recipient, tokenIds[i]);
+            usdtPrice[tokenIds[i]] = 0;
+            uncPrice[tokenIds[i]] = 0;
         }
+    }
+    function setUsdtPrice(uint256 tokenId,uint256 price) external onlyManager{
+        usdtPrice[tokenId] = price;
+    }
+    function setUncPrice(uint256 tokenId,uint256 price) external onlyManager{
+        uncPrice[tokenId] = price;
     }
     function transferOwnership(address newOwner) external {
         require(msg.sender == owner, "Only owner can transfer ownership");
         owner = newOwner;
     }
 
-    function triggerOwnershipTransferUsdt(uint256 tokenId, uint256 amount) external {
-        require(ownerOf(tokenId) == msg.sender, "You are not the owner of this NFT");
-        require(usdtToken.allowance(msg.sender, address(this)) >= amount, "Insufficient allowance");
-        require(usdtToken.balanceOf(msg.sender) >= amount, "Insufficient balance");
-
+    function triggerOwnershipTransferUsdt(uint256 tokenId) external {
+        //require(usdtPrice(tokenId) != 0, "nft has not set price");
+        require(usdtToken.balanceOf(msg.sender) >= usdtPrice[tokenId], "Insufficient allowance");
         // Transfer USDT to the contract
-        require(usdtToken.transferFrom(msg.sender, address(this), amount), "USDT transfer failed");
+        if (usdtPrice[tokenId] != 0 ){
+            require(usdtToken.transferFrom(msg.sender, owner, usdtPrice[tokenId]), "USDT transfer failed");
+            // Transfer ownership of NFT
+            _transfer(owner,msg.sender, tokenId);
+        }
 
-        // Transfer ownership of NFT
-        _transfer(msg.sender, owner, tokenId);
     }
-    function triggerOwnershipTransferUnc(uint256 tokenId, uint256 amount) external {
-        require(ownerOf(tokenId) == msg.sender, "You are not the owner of this NFT");
-        require(uncToken.allowance(msg.sender, address(this)) >= amount, "Insufficient allowance");
-        require(uncToken.balanceOf(msg.sender) >= amount, "Insufficient balance");
-
+    function triggerOwnershipTransferUnc(uint256 tokenId) external  {
+        //require(uncPrice(tokenId) != 0, "nft has not set price");
+        require(usdtToken.balanceOf(msg.sender) >= uncPrice[tokenId], "Insufficient allowance");
         // Transfer USDT to the contract
-        require(uncToken.transferFrom(msg.sender, address(this), amount), "USDT transfer failed");
-
-        // Transfer ownership of NFT
-        _transfer(msg.sender, owner, tokenId);
+        if (uncPrice[tokenId] != 0 ){
+            require(uncToken.transferFrom(msg.sender, owner, uncPrice[tokenId]), "USDT transfer failed");
+            // Transfer ownership of NFT
+            _transfer(owner,msg.sender, tokenId);
+        }
     }
 
-
+    modifier onlyManager() {
+        require(
+            msg.sender == owner,
+            "Only owner can call this."
+        );
+        _;
+    }
 
 }
 
@@ -70,7 +85,7 @@ library SafeMathCell {
 
         uint256 c = a * b;
         require(c / a == b, "SafeMath:multiplication overflow");
-    return c;
+        return c;
     }
 
 
