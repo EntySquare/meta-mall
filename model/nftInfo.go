@@ -7,12 +7,17 @@ import (
 // NftInfo struct
 type NftInfo struct {
 	gorm.Model
-	Name      string
-	DayRate   string
-	ChainName string //公链名 //Polygon
-	TypeNum   int64  //nft种类
-	ImgUrl    string
-	Flag      string // // 启用标志(1-充值 2-提现 0-取消中)
+	Name            string
+	NftNumber       int64
+	DayRate         string
+	TokenId         int64
+	ContractAddress string
+	OwnerAddress    string
+	ChainName       string //公链名 //Polygon
+	Price           int64
+	TypeNum         int64 //nft种类
+	ImgUrl          string
+	Flag            string // // 启用标志(1-充值 2-提现 0-取消中)
 }
 
 func NewNftInfo(id int64) NftInfo {
