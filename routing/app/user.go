@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -29,11 +30,12 @@ func LoginAndRegister(c *fiber.Ctx) error {
 	user.WalletAddress = reqParams.WalletAddress
 	returnT := ""
 	err = user.GetByWalletAddress(database.DB)
-	//if err != nil {
-	//	if !errors.Is(err, gorm.ErrRecordNotFound) {
-	//		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "ErrRecordNotFound", ""))
-	//	}
-	//}
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "", ""))
+		}
+	}
+
 	recommendUser := model.User{}
 	fmt.Println("推荐码：", reqParams.Code)
 	database.DB.Model(&model.User{}).Where("uid = ?", reqParams.Code).Find(&recommendUser)
