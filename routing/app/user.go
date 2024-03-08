@@ -46,8 +46,8 @@ func LoginAndRegister(c *fiber.Ctx) error {
 			user.Level = 0
 			user.PledgeCount = 0
 			user.UID = pkg.RandomCodes(6) + user.WalletAddress[6:9]
-			user.InvestmentAddress = "https://metagalaxylands.com/" + user.UID
-			//user.InvestmentAddress = "http://localhost:4001/" + user.UID
+			//user.InvestmentAddress = "https://metagalaxylands.com/" + user.UID
+			user.InvestmentAddress = "http://localhost:4001/" + user.UID
 			returnT = pkg.RandomString(64)
 			user.Token = returnT + ":" + strconv.FormatInt(time.Now().Unix(), 10)
 			user.RecommendId = recommendUser.ID
