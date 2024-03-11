@@ -2,32 +2,33 @@ package model
 
 import (
 	"gorm.io/gorm"
+	"time"
 )
 
-// CovenantFlow struct
-type CovenantFlow struct {
+// ContractFlow struct
+type ContractFlow struct {
 	gorm.Model
 	AccountId   uint
-	CovenantId  uint
-	Covenant    Covenant
-	Num         string //释放数量
-	ReleaseDate int64
+	ContractId  uint
+	Contract    Contract
+	ReleaseNum  float64 //已领取数量
+	ReleaseDate *time.Time
 	Flag        string // 启用标志(0-未释放 1-已释放)
 }
 
-func (c *CovenantFlow) GetById(db *gorm.DB) error {
+func (c *ContractFlow) GetById(db *gorm.DB) error {
 	return db.First(&c, c.ID).Error
 }
-func (c *CovenantFlow) GetByAccountIdAndReleaseDate(db *gorm.DB) ([]CovenantFlow, error) {
-	flowList := make([]CovenantFlow, 0)
+func (c *ContractFlow) GetByAccountIdAndReleaseDate(db *gorm.DB) ([]ContractFlow, error) {
+	flowList := make([]ContractFlow, 0)
 	db.Model(&c).Where("account_id = ? and release_date = ? ", c.AccountId, c.ReleaseDate).Find(&flowList)
 	return flowList, nil
 }
-func (c *CovenantFlow) GetByCovenantId(db *gorm.DB) ([]CovenantFlow, error) {
-	flowList := make([]CovenantFlow, 0)
-	db.Model(&c).Where("covenant_id = ? ", c.CovenantId).Find(&flowList)
+func (c *ContractFlow) GetByContractId(db *gorm.DB) ([]ContractFlow, error) {
+	flowList := make([]ContractFlow, 0)
+	db.Model(&c).Where("Contract_id = ? ", c.ContractId).Find(&flowList)
 	return flowList, nil
 }
-func (c *CovenantFlow) InsertNewCovenantFlow(db *gorm.DB) error {
+func (c *ContractFlow) InsertNewContractFlow(db *gorm.DB) error {
 	return db.Create(c).Error
 }

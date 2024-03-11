@@ -2,6 +2,7 @@ package model
 
 import (
 	"gorm.io/gorm"
+	"strconv"
 )
 
 // NftInfo struct
@@ -14,10 +15,11 @@ type NftInfo struct {
 	ContractAddress string
 	OwnerAddress    string
 	ChainName       string //公链名 //Polygon
-	Price           int64
-	TypeNum         int64 //nft种类
+	Price           float64
+	Power           float64 //T
+	TypeNum         int64   //nft种类
 	ImgUrl          string
-	Flag            string // // 启用标志(1-充值 2-提现 0-取消中)
+	Flag            string // // 启用标志(1-可购买 2-预定中 0-已售出)
 }
 
 func NewNftInfo(id int64) NftInfo {
@@ -37,8 +39,8 @@ func (ni *NftInfo) InsertNewNftInfo(db *gorm.DB) error {
 func (ni *NftInfo) GetByTypeNum(db *gorm.DB) error {
 	return db.Model(&ni).Where("type_num = ? ", ni.TypeNum).First(&ni).Error
 }
-func (ni *NftInfo) GetAllNftInfoByFlag(db *gorm.DB) (ns []NftInfo, err error) {
+func (ni *NftInfo) GetAllNftInfoByFlag(flag int, db *gorm.DB) (ns []NftInfo, err error) {
 	ns = make([]NftInfo, 0)
-	err = db.Model(&NftInfo{}).Where("flag = ?", "1").Find(&ns).Error
+	err = db.Model(&NftInfo{}).Where("flag = ? or flag = ?", strconv.Itoa(flag), strconv.Itoa(flag+1)).Find(&ns).Error
 	return ns, err
 }

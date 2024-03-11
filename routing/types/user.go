@@ -52,12 +52,12 @@ type BenefitInfo struct {
 	LastDayBenefit     float64 `json:"last_day_benefit"`
 	AccumulatedBenefit float64 `json:"accumulated_benefit"`
 }
-type MyCovenantFlowResp struct {
+type MyContractFlowResp struct {
 	BenefitInfo BenefitInfo    `json:"benefit_info"`
-	Covenants   []CovenantInfo `json:"covenant_flows"`
+	Contracts   []ContractInfo `json:"Contract_flows"`
 }
-type CovenantInfo struct {
-	CovenantId         uint    `json:"covenant_id"`
+type ContractInfo struct {
+	ContractId         uint    `json:"Contract_id"`
 	NFTName            string  `json:"nft_name"`
 	PledgeId           string  `json:"pledge_id"`
 	ChainName          string  `json:"chain_name"`
@@ -80,16 +80,8 @@ type InviteeInfoResp struct {
 	Level       int64          `json:"level"`
 	PledgeCount int64          `json:"pledge_count"`
 	CreateTime  int64          `json:"create_time"`
-	Covenants   []CovenantInfo `json:"covenant_flows"`
+	Contracts   []ContractInfo `json:"Contract_flows"`
 }
-type CovenantDetailReq struct {
+type ContractDetailReq struct {
 	Hash string `json:"hash"`
-}
-type CovenantDetail struct {
-	Time int64  `json:"time"`
-	Num  string `json:"num"`
-	Flag string `json:"flag"`
-}
-type CovenantDetailResp struct {
-	List []CovenantDetail `json:"benefit_flows"`
 }

@@ -48,7 +48,7 @@ func InitTask() {
 	)
 	_, err = c.AddFunc("0 0 1 * * ?", func() {
 		//api.IncomeRunP(database.DB)
-		api.CovenantCycle(database.DB)
+		//api.ContractCycle(database.DB)
 	})
 
 	if err != nil {

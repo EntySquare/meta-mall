@@ -18,9 +18,10 @@ func ConnectDB() {
 	allModels := []interface{}{
 		&model.User{},
 		&model.Account{},
-		&model.Covenant{},
+		&model.Contract{},
 		&model.AccountFlow{},
-		&model.CovenantFlow{},
+		&model.ContractFlow{},
+		&model.Order{},
 		&model.Transactions{},
 		&model.PLog{},
 		&model.NftInfo{},

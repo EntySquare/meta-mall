@@ -21,8 +21,9 @@ func TestInsertNft(t *testing.T) {
 		OwnerAddress:    "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
 		ChainName:       "bsc",
 		Price:           1688,
+		Power:           1688,
 		TypeNum:         1,
-		ImgUrl:          "测试地址",
+		ImgUrl:          "http://192.168.10.139:3000/0.png",
 		Flag:            "1",
 	}).Error
 	err = database.DB.Create(&model.NftInfo{
@@ -35,8 +36,9 @@ func TestInsertNft(t *testing.T) {
 		OwnerAddress:    "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
 		ChainName:       "bsc",
 		Price:           1688,
+		Power:           1688,
 		TypeNum:         1,
-		ImgUrl:          "测试地址",
+		ImgUrl:          "http://192.168.10.139:3000/0.png",
 		Flag:            "1",
 	}).Error
 	err = database.DB.Create(&model.NftInfo{
@@ -49,8 +51,9 @@ func TestInsertNft(t *testing.T) {
 		OwnerAddress:    "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
 		ChainName:       "bsc",
 		Price:           1688,
+		Power:           1688,
 		TypeNum:         1,
-		ImgUrl:          "测试地址",
+		ImgUrl:          "http://192.168.10.139:3000/0.png",
 		Flag:            "1",
 	}).Error
 	err = database.DB.Create(&model.NftInfo{
@@ -63,8 +66,9 @@ func TestInsertNft(t *testing.T) {
 		OwnerAddress:    "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
 		ChainName:       "bsc",
 		Price:           1688,
+		Power:           1688,
 		TypeNum:         1,
-		ImgUrl:          "测试地址",
+		ImgUrl:          "http://192.168.10.139:3000/1.jpeg",
 		Flag:            "1",
 	}).Error
 	err = database.DB.Create(&model.NftInfo{
@@ -77,8 +81,9 @@ func TestInsertNft(t *testing.T) {
 		OwnerAddress:    "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
 		ChainName:       "bsc",
 		Price:           1688,
+		Power:           1688,
 		TypeNum:         1,
-		ImgUrl:          "测试地址",
+		ImgUrl:          "http://192.168.10.139:3000/1.jpeg",
 		Flag:            "1",
 	}).Error
 	err = database.DB.Create(&model.NftInfo{
@@ -91,8 +96,9 @@ func TestInsertNft(t *testing.T) {
 		OwnerAddress:    "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
 		ChainName:       "bsc",
 		Price:           88,
+		Power:           88,
 		TypeNum:         1,
-		ImgUrl:          "测试地址",
+		ImgUrl:          "http://192.168.10.139:3000/1.jpeg",
 		Flag:            "1",
 	}).Error
 	err = database.DB.Create(&model.NftInfo{
@@ -105,8 +111,9 @@ func TestInsertNft(t *testing.T) {
 		OwnerAddress:    "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
 		ChainName:       "bsc",
 		Price:           188,
+		Power:           188,
 		TypeNum:         1,
-		ImgUrl:          "测试地址",
+		ImgUrl:          "http://192.168.10.139:3000/2.png",
 		Flag:            "1",
 	}).Error
 	err = database.DB.Create(&model.NftInfo{
@@ -119,8 +126,9 @@ func TestInsertNft(t *testing.T) {
 		OwnerAddress:    "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
 		ChainName:       "bsc",
 		Price:           188,
+		Power:           188,
 		TypeNum:         1,
-		ImgUrl:          "测试地址",
+		ImgUrl:          "http://192.168.10.139:3000/2.png",
 		Flag:            "1",
 	}).Error
 	err = database.DB.Create(&model.NftInfo{
@@ -133,8 +141,9 @@ func TestInsertNft(t *testing.T) {
 		OwnerAddress:    "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
 		ChainName:       "bsc",
 		Price:           188,
+		Power:           188,
 		TypeNum:         1,
-		ImgUrl:          "测试地址",
+		ImgUrl:          "http://192.168.10.139:3000/2.png",
 		Flag:            "1",
 	}).Error
 	fmt.Println(err)
