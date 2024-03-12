@@ -64,10 +64,12 @@ func LoginAndRegister(c *fiber.Ctx) error {
 				return err
 			}
 			var acc = model.Account{
-				UserId:        user.ID,
-				Balance:       0,
-				FrozenBalance: 0,
-				Flag:          "1",
+				UserId:            user.ID,
+				USDTBalance:       0,
+				UNCBalance:        0,
+				USDTFrozenBalance: 0,
+				UNCFrozenBalance:  0,
+				Flag:              "1",
 			}
 			err = acc.InsertNewAccount(tx)
 			if err != nil {

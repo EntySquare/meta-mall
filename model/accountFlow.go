@@ -14,6 +14,7 @@ type AccountFlow struct {
 	Chain           string
 	Address         string
 	Hash            string
+	TokenName       string
 	AskForTime      *time.Time //开始申请时间
 	AchieveTime     *time.Time //实现时间
 	TransactionType string     // 交易类型(1-充值 2-提现)
