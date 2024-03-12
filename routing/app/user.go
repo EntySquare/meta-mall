@@ -46,7 +46,7 @@ func LoginAndRegister(c *fiber.Ctx) error {
 				return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "user get by addresss error", ""))
 			}
 			user.Level = 0
-			user.PledgeCount = 0
+			user.Power = 0
 			user.UID = pkg.RandomCodes(6) + user.WalletAddress[6:9]
 			//user.InvestmentAddress = "https://metagalaxylands.com/" + user.UID
 			user.InvestmentAddress = "http://localhost:4001/" + user.UID
@@ -95,22 +95,53 @@ func MyInvestment(c *fiber.Ctx) error {
 	data := types.MyInvestmentResp{
 		InvestmentUsers: make([]types.InvestmentUserInfo, 0),
 	}
-	data.UID = user.UID
+	data.Address = user.WalletAddress
 	data.InvestmentAddress = config.Config("WEB_URL") + "/&code=" + user.UID
 	data.Level = user.Level
-	data.InvestmentCount = int64(len(api.UserTree[userId].Branch))
-	data.AccumulatedPledgeCount = api.GetBranchAccumulatedPledgeCount(userId)
+	data.Powers = api.UserTree[userId].Power
+	//data.AccumulatedPledgeCount = api.GetBranchAccumulatedPower(userId)
 	for _, branch := range api.UserTree[userId].Branch {
 		in := types.InvestmentUserInfo{}
-		in.UID = api.UserTree[branch].UID
+		in.Address = api.UserTree[branch].Address
 		in.Level = api.UserTree[branch].Level
-		in.PledgeCount = api.UserTree[branch].PledgeCount
+		in.Powers = api.UserTree[branch].Power
+		user.WalletAddress = api.UserTree[branch].Address
+		err = user.GetByWalletAddress(database.DB)
+		if err != nil {
+			return err
+		}
+		in.Time = user.Model.CreatedAt.Unix()
 		data.InvestmentUsers = append(data.InvestmentUsers, in)
 
 	}
 	return c.JSON(pkg.SuccessResponse(data))
 }
-
+func MyPromotion(c *fiber.Ctx) error {
+	//userId := c.Locals("user_id")
+	userId := c.Locals(config.LOCAL_USERID_UINT).(uint)
+	user := model.User{}
+	user.ID = userId
+	err := user.GetById(database.DB)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.TOKEN_FAIL, err.Error(), "查询用户失败"))
+	}
+	flow := model.ContractFlow{}
+	flow.UserId = userId
+	flow.Flag = "2"
+	flow.TokenName = "unc"
+	mrb, err := flow.GetUserReleaseBenefitByTokenName(database.DB)
+	if err != nil {
+		return err
+	}
+	mb := 2100.0
+	data := types.MyPromotionResp{
+		AllPromotionPower:           api.GetBranchAccumulatedPower(0),
+		MyPromotionPower:            api.UserTree[userId].Power,
+		MyPromotionBenefit:          mb,
+		MyAvailablePromotionBenefit: mb - mrb,
+	}
+	return c.JSON(pkg.SuccessResponse(data))
+}
 func getLastDay() int64 {
 	currentTime := time.Now()
 	oldTime := currentTime.AddDate(0, 0, -1)

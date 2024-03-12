@@ -6,10 +6,10 @@ import (
 )
 
 type SingleUser struct {
-	UID           string
+	Address       string
 	RecommenderId uint
 	Level         int64
-	PledgeCount   int64
+	Power         float64
 	Branch        []uint
 }
 
@@ -20,25 +20,25 @@ func AddNewBranch(treeId uint, branchId uint) {
 	branch := make([]uint, 0)
 	UserTree[branchId] = SingleUser{
 		RecommenderId: treeId,
-		PledgeCount:   0,
+		Power:         0,
 		Branch:        branch,
 	}
 	//newBranch := make([]uint, 0)
 	newBranch := append(UserTree[treeId].Branch, branchId)
 	UserTree[treeId] = SingleUser{
 		RecommenderId: UserTree[treeId].RecommenderId,
-		PledgeCount:   UserTree[treeId].PledgeCount,
+		Power:         UserTree[treeId].Power,
 		Branch:        newBranch,
 	}
 }
 
-// GetBranchAccumulatedInput 用户累计投入
-func GetBranchAccumulatedPledgeCount(userId uint) int64 {
-	AccumulatedPledgeCount := int64(0)
+// GetBranchAccumulatedInput 累计算力
+func GetBranchAccumulatedPower(userId uint) float64 {
+	AccumulatedPower := float64(0)
 	for _, branch := range UserTree[userId].Branch {
-		AccumulatedPledgeCount += UserTree[branch].PledgeCount
+		AccumulatedPower += UserTree[branch].Power
 	}
-	return AccumulatedPledgeCount
+	return AccumulatedPower
 }
 
 // GetAssociate 用户下级用户
@@ -55,11 +55,22 @@ func GetAssociate(userId uint) []uint {
 }
 
 // UserInput 用户新增投入
-func UserPledge(userId uint, count int64) {
+func UserPurchase(userId uint, count float64) {
 	UserTree[userId] = SingleUser{
-		UID:           UserTree[userId].UID,
+		Address:       UserTree[userId].Address,
 		RecommenderId: UserTree[userId].RecommenderId,
-		PledgeCount:   UserTree[userId].PledgeCount + count,
+		Power:         UserTree[userId].Power + count,
+		Level:         UserTree[userId].Level,
+		Branch:        UserTree[userId].Branch,
+	}
+}
+
+// PowerLose 算力合约到期
+func ContractEnd(userId uint, count float64) {
+	UserTree[userId] = SingleUser{
+		Address:       UserTree[userId].Address,
+		RecommenderId: UserTree[userId].RecommenderId,
+		Power:         UserTree[userId].Power - count,
 		Level:         UserTree[userId].Level,
 		Branch:        UserTree[userId].Branch,
 	}
@@ -76,17 +87,17 @@ func InitUserTree(db *gorm.DB) error {
 	for _, user := range users {
 		if user.ID == 0 {
 			UserTree[user.ID] = SingleUser{
-				UID:           user.UID,
+				Address:       user.WalletAddress,
 				RecommenderId: 0,
-				PledgeCount:   user.PledgeCount,
+				Power:         user.Power,
 				Level:         user.Level,
 				Branch:        nil,
 			}
 		} else {
 			UserTree[user.ID] = SingleUser{
-				UID:           user.UID,
+				Address:       user.WalletAddress,
 				RecommenderId: user.RecommendId,
-				PledgeCount:   user.PledgeCount,
+				Power:         user.Power,
 				Level:         user.Level,
 				Branch:        nil,
 			}
@@ -109,11 +120,12 @@ func initUserBranch(users []model.User) {
 		}
 
 		UserTree[u.RecommendId] = SingleUser{
-			UID:           UserTree[u.RecommendId].UID,
+			Address:       UserTree[u.RecommendId].Address,
 			RecommenderId: UserTree[u.RecommendId].RecommenderId,
-			PledgeCount:   UserTree[u.RecommendId].PledgeCount,
-			Level:         UserTree[u.RecommendId].Level,
-			Branch:        newBranch,
+			Power:         UserTree[u.RecommendId].Power,
+
+			Level:  UserTree[u.RecommendId].Level,
+			Branch: newBranch,
 		}
 	}
 }

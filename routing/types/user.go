@@ -21,17 +21,23 @@ type UpdatePwdReq struct {
 }
 
 type MyInvestmentResp struct {
-	UID                    string               `json:"uid"`
-	Level                  int64                `json:"level"`
-	AccumulatedPledgeCount int64                `json:"accumulated_pledge_count"`
-	InvestmentCount        int64                `json:"investment_count"`
-	InvestmentAddress      string               `json:"investment_address"`
-	InvestmentUsers        []InvestmentUserInfo `json:"investment_users"`
+	Address           string               `json:"address"`
+	Level             int64                `json:"level"`
+	Powers            float64              `json:"powers"`
+	InvestmentAddress string               `json:"investment_address"`
+	InvestmentUsers   []InvestmentUserInfo `json:"investment_users"`
 }
 type InvestmentUserInfo struct {
-	UID         string `json:"uid"`
-	Level       int64  `json:"level"`
-	PledgeCount int64  `json:"pledge_count"`
+	Address string  `json:"address"` //地址
+	Level   int64   `json:"level"`   //星级
+	Powers  float64 `json:"Powers"`  //算力
+	Time    int64   `json:"time"`    //时间
+}
+type MyPromotionResp struct {
+	AllPromotionPower           float64 `json:"all_promotion_power"`            //全网推广算力
+	MyPromotionPower            float64 `json:"my_promotion_power"`             //我的推广算力
+	MyPromotionBenefit          float64 `json:"my_promotion_benefit"`           //累计收益
+	MyAvailablePromotionBenefit float64 `json:"my_available_promotion_benefit"` //可领取收益
 }
 type MyNgtResp struct {
 	BenefitInfo  BenefitInfo       `json:"benefit_info"`

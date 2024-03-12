@@ -12,7 +12,7 @@ type User struct {
 	RecommendId       uint
 	UID               string
 	Level             int64
-	PledgeCount       int64
+	Power             float64
 	InvestmentAddress string
 	Token             string
 	Account           Account `gorm:"foreignKey:UserId"`

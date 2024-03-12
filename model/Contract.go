@@ -9,8 +9,9 @@ import (
 // Contract struct
 type Contract struct {
 	gorm.Model
-	NFTName            string     //产品名字
-	NftId              uint       //nftID
+	NFTName            string //产品名字
+	NftId              uint   //nftID
+	TokenName          string
 	Hash               string     //交易哈希
 	AccumulatedBenefit float64    //累计收益
 	Power              float64    //算力
@@ -56,9 +57,9 @@ func (c *Contract) SelectMyContract(db *gorm.DB) (cs []Contract, err error) {
 	return cs, err
 }
 
-func (c *Contract) GetUserAccumulatedBenefit(db *gorm.DB) (float64, error) {
+func (c *Contract) GetUserAccumulatedBenefitByTokenName(db *gorm.DB) (float64, error) {
 	var accumulatedBenefit sql.NullFloat64
-	err := db.Model(&c).Select("sum(release_fee)").Where("owner_id = ? ", c.OwnerId).Scan(&accumulatedBenefit).Error
+	err := db.Model(&c).Select("sum(accumulated_benefit)").Where("owner_id = ? and token_name = ? and flag = ?", c.OwnerId, c.TokenName, "2").Scan(&accumulatedBenefit).Error
 	if err != nil {
 		return 0, err
 	}
@@ -68,7 +69,18 @@ func (c *Contract) GetUserAccumulatedBenefit(db *gorm.DB) (float64, error) {
 		return 0, err
 	}
 }
-
+func (c *Contract) GetAllBenefitLimitByTokenName(db *gorm.DB) (float64, error) {
+	var bf sql.NullFloat64
+	err := db.Model(&c).Select("sum(benefit_limit)").Where("flag = ? and token_name = ?", c.Flag, c.TokenName).Scan(&bf).Error
+	if err != nil {
+		return 0, err
+	}
+	if bf.Valid {
+		return bf.Float64, nil
+	} else {
+		return 0, err
+	}
+}
 func SelectMyContractByFlag(db *gorm.DB, flag string) (cs []Contract, err error) {
 	cs = make([]Contract, 0)
 	err = db.Model(&Contract{}).Where("flag = ?", flag).Find(&cs).Error
