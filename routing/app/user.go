@@ -206,25 +206,27 @@ func GetAvailableBenefit(c *fiber.Ctx) error {
 		} else {
 			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "token name error", ""))
 		}
-
 		tt := time.Now()
-		flow := model.AccountFlow{
-			AccountId:       account.ID,
-			Account:         account,
-			Num:             mab,
-			Chain:           "bsc",
-			Address:         user.WalletAddress,
-			Hash:            "",
-			TokenName:       reqParams.TokenName,
-			AskForTime:      &tt,
-			AchieveTime:     &tt,
-			TransactionType: "2",
-			Flag:            "1",
+		if mab != 0 {
+			flow := model.AccountFlow{
+				AccountId:       account.ID,
+				Account:         account,
+				Num:             mab,
+				Chain:           "bsc",
+				Address:         user.WalletAddress,
+				Hash:            "",
+				TokenName:       reqParams.TokenName,
+				AskForTime:      &tt,
+				AchieveTime:     &tt,
+				TransactionType: "2",
+				Flag:            "1",
+			}
+			err = flow.InsertNewAccountFlow(database.DB)
+			if err != nil {
+				return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "insert account flow error", ""))
+			}
 		}
-		err = flow.InsertNewAccountFlow(database.DB)
-		if err != nil {
-			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "insert account flow error", ""))
-		}
+
 		err = account.UpdateAccount(database.DB)
 		if err != nil {
 			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "update account error", ""))
