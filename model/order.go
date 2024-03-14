@@ -23,15 +23,18 @@ func NewOrder2(id uint) Order {
 	return Order{Model: gorm.Model{ID: id}}
 }
 
-func (c *Order) GetById(db *gorm.DB) error {
-	return db.First(&c, c.ID).Error
+func (o *Order) GetById(db *gorm.DB) error {
+	return db.First(&o, o.ID).Error
+}
+func (o *Order) GetByNftId(db *gorm.DB) error {
+	return db.Model(&o).Where("nft_id = ? ", o.NftId).Take(&o).Error
 }
 
-func (c *Order) UpdateOrder(db *gorm.DB) error {
-	return db.Model(&c).Updates(c).Error
+func (o *Order) UpdateOrder(db *gorm.DB) error {
+	return db.Model(&o).Updates(o).Error
 }
-func (c *Order) InsertNewOrder(db *gorm.DB) error {
-	return db.Create(c).Error
+func (o *Order) InsertNewOrder(db *gorm.DB) error {
+	return db.Create(o).Error
 }
 
 // SelectMyOrder
@@ -41,8 +44,8 @@ func (c *Order) InsertNewOrder(db *gorm.DB) error {
 //	@return userId
 //	@return err
 
-func (c *Order) SelectMyOrder(db *gorm.DB) (cs []Order, err error) {
-	cs = make([]Order, 0)
-	err = db.Model(&Order{}).Where("buyer_id = ?", c.BuyerId).Find(&cs).Error
-	return cs, err
+func (o *Order) SelectMyOrder(db *gorm.DB) (os []Order, err error) {
+	os = make([]Order, 0)
+	err = db.Model(&Order{}).Where("buyer_id = ?", o.BuyerId).Find(&os).Error
+	return os, err
 }

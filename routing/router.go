@@ -22,6 +22,7 @@ func AppSetUp(appApi fiber.Router) {
 	appApi.Post("/getMiningIncome", intcpt.AuthApp(), app.GetMiningIncome)
 	appApi.Post("/getMyPromotionList", intcpt.AuthApp(), app.MyInvestment)
 	appApi.Post("/getMyPromotion", intcpt.AuthApp(), app.MyPromotion)
+	appApi.Post("/getAvailableBenefit", intcpt.AuthApp(), app.GetAvailableBenefit)
 	//appApi.Post("/deposit", intcpt.AuthApp(), app.Deposit)
 	//appApi.Post("/withdraw", intcpt.AuthApp(), app.Withdraw)
 	//appApi.Post("/checkHash", intcpt.AuthApp(), app.CheckHashApi)

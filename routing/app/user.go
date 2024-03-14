@@ -107,14 +107,14 @@ func MyInvestment(c *fiber.Ctx) error {
 		in.Address = api.UserTree[branch].Address
 		in.Level = api.UserTree[branch].Level
 		in.Powers = api.UserTree[branch].Power
-		user.WalletAddress = api.UserTree[branch].Address
-		err = user.GetByWalletAddress(database.DB)
+		branchUser := model.User{}
+		branchUser.WalletAddress = api.UserTree[branch].Address
+		err = branchUser.GetByWalletAddress(database.DB)
 		if err != nil {
 			return err
 		}
-		in.Time = user.Model.CreatedAt.Unix()
+		in.Time = branchUser.Model.CreatedAt.Unix()
 		data.InvestmentUsers = append(data.InvestmentUsers, in)
-
 	}
 	return c.JSON(pkg.SuccessResponse(data))
 }
@@ -144,6 +144,99 @@ func MyPromotion(c *fiber.Ctx) error {
 	}
 	return c.JSON(pkg.SuccessResponse(data))
 }
+func GetAvailableBenefit(c *fiber.Ctx) error {
+	fmt.Println("/GetAvailableBenefit api...")
+	reqParams := types.GetAvailableBenefitReq{}
+	err := c.BodyParser(&reqParams)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "parser error", ""))
+	}
+	userId := c.Locals(config.LOCAL_USERID_UINT).(uint)
+	user := model.User{}
+	user.ID = userId
+	err = user.GetById(database.DB)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get user error", ""))
+	}
+	myFlows := model.ContractFlow{}
+	myFlows.UserId = userId
+	contractFlows := make([]model.ContractFlow, 0)
+	if reqParams.Type == "1" {
+		myFlows.TokenName = reqParams.TokenName
+		myFlows.Flag = "1"
+		contractFlows, err = myFlows.GetByContractFlowByUserId(database.DB)
+		if err != nil {
+			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get contract flow error", ""))
+		}
+	} else if reqParams.Type == "2" {
+		myFlows.Flag = "3"
+		contractFlows, err = myFlows.GetByContractFlowByUserId(database.DB)
+		if err != nil {
+			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get contract flow error", ""))
+		}
+	} else {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "type error", ""))
+	}
+	mab := 0.0
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		for _, flow := range contractFlows {
+			mab += flow.ReleaseNum
+			if reqParams.Type == "1" {
+				flow.Flag = "2"
+			} else if reqParams.Type == "2" {
+				flow.Flag = "4"
+			} else {
+				return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "type error", ""))
+			}
+			err := flow.UpdateContractFlow(database.DB)
+			if err != nil {
+				return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "update contract flow error", ""))
+			}
+		}
+		account := model.Account{}
+		account.UserId = userId
+		err = account.GetByUserId(database.DB)
+		if err != nil {
+			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get account  error", ""))
+		}
+		if reqParams.TokenName == "usdt" {
+			account.USDTBalance = account.USDTBalance - mab
+		} else if reqParams.TokenName == "unc" {
+			account.UNCBalance = account.UNCBalance - mab
+		} else {
+			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "token name error", ""))
+		}
+
+		tt := time.Now()
+		flow := model.AccountFlow{
+			AccountId:       account.ID,
+			Account:         account,
+			Num:             mab,
+			Chain:           "bsc",
+			Address:         user.WalletAddress,
+			Hash:            "",
+			TokenName:       reqParams.TokenName,
+			AskForTime:      &tt,
+			AchieveTime:     &tt,
+			TransactionType: "2",
+			Flag:            "1",
+		}
+		err = flow.InsertNewAccountFlow(database.DB)
+		if err != nil {
+			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "insert account flow error", ""))
+		}
+		err = account.UpdateAccount(database.DB)
+		if err != nil {
+			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "update account error", ""))
+		}
+		return nil
+	})
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "transaction error", ""))
+	}
+	return c.JSON(pkg.SuccessResponse(""))
+}
+
 func getLastDay() int64 {
 	currentTime := time.Now()
 	oldTime := currentTime.AddDate(0, 0, -1)

@@ -9,6 +9,7 @@ import (
 	"meta-mall/model"
 	"meta-mall/pkg"
 	"meta-mall/routing/types"
+	"time"
 )
 
 func GetNftList(c *fiber.Ctx) error {
@@ -82,14 +83,16 @@ func PurchaseNft(c *fiber.Ctx) error {
 		if err != nil {
 			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "update nft error", ""))
 		}
+		tt := time.Now()
 		contract := model.Contract{
 			NFTName:            nft.Name,
 			NftId:              nft.ID,
-			Hash:               "",
+			Hash:               reqParams.Hash,
 			AccumulatedBenefit: 0,
+			TokenName:          reqParams.TokenName,
 			Power:              nft.Power,
 			BenefitLimit:       nft.Power * 300,
-			StartTime:          nil,
+			StartTime:          &tt,
 			ExpireTime:         nil,
 			Flag:               "1",
 			OwnerId:            userId,

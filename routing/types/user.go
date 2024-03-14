@@ -30,7 +30,7 @@ type MyInvestmentResp struct {
 type InvestmentUserInfo struct {
 	Address string  `json:"address"` //地址
 	Level   int64   `json:"level"`   //星级
-	Powers  float64 `json:"Powers"`  //算力
+	Powers  float64 `json:"powers"`  //算力
 	Time    int64   `json:"time"`    //时间
 }
 type MyPromotionResp struct {
@@ -90,4 +90,8 @@ type InviteeInfoResp struct {
 }
 type ContractDetailReq struct {
 	Hash string `json:"hash"`
+}
+type GetAvailableBenefitReq struct {
+	TokenName string `json:"token_name"`
+	Type      string `json:"type"` //1-自有 2-推广
 }

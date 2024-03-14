@@ -21,9 +21,12 @@ type ContractFlow struct {
 func (c *ContractFlow) GetById(db *gorm.DB) error {
 	return db.First(&c, c.ID).Error
 }
+func (cf *ContractFlow) UpdateContractFlow(db *gorm.DB) error {
+	return db.Model(&cf).Updates(cf).Error
+}
 func (c *ContractFlow) GetByContractFlowByUserId(db *gorm.DB) ([]ContractFlow, error) {
 	flowList := make([]ContractFlow, 0)
-	db.Model(&c).Where("user_id = ?  and flag = ?", c.UserId, c.Flag).Find(&flowList)
+	db.Model(&c).Where("user_id = ? and token_name = ?  and flag = ?", c.UserId, c.TokenName, c.Flag).Find(&flowList)
 	return flowList, nil
 }
 func (c *ContractFlow) GetByContractId(db *gorm.DB) ([]ContractFlow, error) {

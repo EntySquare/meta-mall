@@ -5,9 +5,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/robfig/cron/v3"
+	"gorm.io/gorm"
 	"meta-mall/database"
+	"meta-mall/model"
 	"meta-mall/model/api"
 	"meta-mall/routing"
+	"time"
 )
 
 func main() {
@@ -30,7 +33,7 @@ func main() {
 	}
 
 	InitTask()
-	//	go poly.ScanPoly(database.DB)
+	go scanContract(database.DB)
 	//  go eth.ScanEth(database.DB)
 	routing.Setup(fiberApp)
 
@@ -47,7 +50,7 @@ func InitTask() {
 		err error
 	)
 	_, err = c.AddFunc("0 0 1 * * ?", func() {
-		//api.IncomeRunP(database.DB)
+		api.IncomeRunP(database.DB)
 		//api.ContractCycle(database.DB)
 	})
 
@@ -56,4 +59,56 @@ func InitTask() {
 		return
 	}
 	c.Start()
+}
+func scanContract(db *gorm.DB) {
+	for {
+		err := database.DB.Transaction(func(tx *gorm.DB) error {
+			tt := time.Now()
+			list, err := model.SelectContractByFlag(tx, "1")
+			if err != nil {
+				panic(err)
+			}
+			for _, v := range list {
+				hash := v.Hash
+				println(hash) //TODO check hash
+				checkFlag := false
+				if checkFlag == true {
+					v.Flag = "2"
+					v.StartTime = &tt
+					nft := model.NftInfo{}
+					nft.ID = v.NftId
+					err = nft.GetById(db)
+					if err != nil {
+						return err
+					}
+					nft.Flag = "0"
+					err = nft.UpdateNftInfo(db)
+					if err != nil {
+						return err
+					}
+					order := model.Order{}
+					order.NftId = v.NftId
+					err = order.GetByNftId(db)
+					if err != nil {
+						return err
+					}
+					order.Flag = "2"
+					err := order.UpdateOrder(db)
+					if err != nil {
+						return err
+					}
+					err = v.UpdateContract(db)
+					if err != nil {
+						return err
+					}
+				}
+			}
+			return nil
+		})
+		if err != nil {
+			fmt.Println(err)
+			panic(err)
+		}
+		time.Sleep(time.Second * 60)
+	}
 }

@@ -81,8 +81,20 @@ func (c *Contract) GetAllBenefitLimitByTokenName(db *gorm.DB) (float64, error) {
 		return 0, err
 	}
 }
-func SelectMyContractByFlag(db *gorm.DB, flag string) (cs []Contract, err error) {
+func SelectContractByFlag(db *gorm.DB, flag string) (cs []Contract, err error) {
 	cs = make([]Contract, 0)
 	err = db.Model(&Contract{}).Where("flag = ?", flag).Find(&cs).Error
 	return cs, err
+}
+func (c *Contract) GetAllPowers(db *gorm.DB) (float64, error) {
+	var accumulatedBenefit sql.NullFloat64
+	err := db.Model(&c).Select("sum(power)").Where("flag = ?", "2").Scan(&accumulatedBenefit).Error
+	if err != nil {
+		return 0, err
+	}
+	if accumulatedBenefit.Valid {
+		return accumulatedBenefit.Float64, nil
+	} else {
+		return 0, err
+	}
 }

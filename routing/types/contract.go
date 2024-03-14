@@ -12,6 +12,7 @@ type GetMyContractListResp struct {
 	List []ContractDetail `json:"contract_list"`
 }
 type GetMiningIncomeResultResp struct {
+	AllPowers                 float64 `json:"all_powers"`
 	AllAccumulatedUSDTBenefit float64 `json:"all_accumulated_usdt"` //usdt全网总收益
 	MyAccumulatedUSDTBenefit  float64 `json:"my_accumulated_usdt"`  //usdt我的总收益
 	MyAvailableUSDTBenefit    float64 `json:"my_available_usdt"`    //usdt可领取收益
