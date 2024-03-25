@@ -3,6 +3,7 @@ package config
 import "gopkg.in/go-playground/validator.v9"
 
 const LOCAL_USERID_UINT = "user_id_uint"
+const LOCAL_MANAGERNAME_STRING = "user_name_string"
 const LOCAL_USERID_INT64 = "user_id_int64"
 const LOCAL_TOKEN = "token"
 

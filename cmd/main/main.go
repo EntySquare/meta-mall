@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
+	contract "meta-mall/contracts"
 	"meta-mall/database"
 	"meta-mall/model"
 	"meta-mall/model/api"
@@ -70,8 +71,17 @@ func scanContract(db *gorm.DB) {
 			}
 			for _, v := range list {
 				hash := v.Hash
-				println(hash) //TODO check hash
 				checkFlag := false
+				txs, err := contract.GetTransactionByHash(hash)
+				if err != nil {
+					println(err.Error())
+				} else {
+					if txs["blockNumber"] != "" {
+						fmt.Println(txs["blockNumber"])
+						checkFlag = true
+					}
+
+				}
 				if checkFlag == true {
 					v.Flag = "2"
 					v.StartTime = &tt
@@ -101,6 +111,39 @@ func scanContract(db *gorm.DB) {
 					if err != nil {
 						return err
 					}
+					api.UserPurchase(v.OwnerId, v.Power)
+					user := model.User{}
+					user.ID = v.OwnerId
+					err = user.GetById(db)
+					if err != nil {
+						return err
+					}
+					if user.RecommendId != 0 {
+						recommend := model.User{}
+						recommend.ID = user.RecommendId
+						err := recommend.GetById(db)
+						if err != nil {
+							return err
+						}
+						userList := api.GetAssociate(recommend.ID)
+						var biggestU uint
+						biggestP := 0.0
+						allP := 0.0
+						for _, u := range userList {
+							p := api.GetBranchAccumulatedPower(u) + api.UserTree[u].Power
+							if biggestP < p {
+								biggestU = u
+								biggestP = p
+								allP += p
+							}
+						}
+						println(biggestU)
+						levelp := allP - biggestP
+						if levelp > 0 {
+
+						}
+					}
+
 				}
 			}
 			return nil
@@ -109,6 +152,6 @@ func scanContract(db *gorm.DB) {
 			fmt.Println(err)
 			panic(err)
 		}
-		time.Sleep(time.Second * 60)
+		time.Sleep(time.Second * 320)
 	}
 }

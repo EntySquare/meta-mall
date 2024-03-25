@@ -6,7 +6,7 @@ type ContractDetail struct {
 	Power              float64 `json:"power"`               //算力
 	TokenName          string  `json:"token_name"`          //收益token名字
 	StartTime          int64   `json:"start_time"`          //开始时间
-	Flag               string  `json:"flag"`                //状态（2- 进行中）
+	Flag               string  `json:"flag"`                //状态（1-待确认 2- 进行中 ）
 }
 type GetMyContractListResp struct {
 	List []ContractDetail `json:"contract_list"`

@@ -25,6 +25,7 @@ func ConnectDB() {
 		&model.Transactions{},
 		&model.PLog{},
 		&model.NftInfo{},
+		&model.Manager{},
 	}
 	var err error
 	p := config.Config("DB_PORT")

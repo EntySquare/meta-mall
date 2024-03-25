@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"gorm.io/gorm"
 	"strconv"
 )
@@ -41,6 +42,18 @@ func (ni *NftInfo) GetByTypeNum(db *gorm.DB) error {
 }
 func (ni *NftInfo) GetAllNftInfoByFlag(flag int, db *gorm.DB) (ns []NftInfo, err error) {
 	ns = make([]NftInfo, 0)
-	err = db.Model(&NftInfo{}).Where("flag = ? or flag = ?", strconv.Itoa(flag), strconv.Itoa(flag+1)).Find(&ns).Error
+	err = db.Model(&NftInfo{}).Where("flag = ?", strconv.Itoa(flag)).Find(&ns).Error
 	return ns, err
+}
+func (ni *NftInfo) GetMaxTokenId(db *gorm.DB) (int64, error) {
+	var ti sql.NullInt64
+	err := db.Model(&ni).Select("max(token_id)").Scan(&ti).Error
+	if err != nil {
+		return 0, err
+	}
+	if ti.Valid {
+		return ti.Int64, nil
+	} else {
+		return 0, err
+	}
 }

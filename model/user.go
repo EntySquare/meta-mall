@@ -62,13 +62,18 @@ func SelectAllUserID(db *gorm.DB) (us []uint, err error) {
 }
 
 // InsertNewUser 新增用户
-func (u *User) InsertNewUser(db *gorm.DB) error {
-	return db.Create(u).Error
+func (u *User) InsertNewUser(db *gorm.DB) (id uint, err error) {
+	result := db.Create(u)
+	if result.Error != nil {
+		return 0, result.Error
+	} else {
+		return u.ID, nil
+	}
 }
 
 // UpdateUserToken 更新用户Token
-func (u *User) UpdateUserToken(db *gorm.DB, uid int64) error {
-	res := db.Model(&u).Where("id = ?", uid).Update("token", "")
+func (u *User) UpdateUserToken(db *gorm.DB) error {
+	res := db.Model(&u).Where("id = ?", u.ID).Update("token", u.Token)
 	if res.Error != nil {
 		return res.Error
 	}

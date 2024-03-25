@@ -16,9 +16,10 @@ type SingleUser struct {
 var UserTree map[uint]SingleUser
 
 // AddNewBranch 增加新的用户树枝干 treeId:推荐人 branchId:当前用户
-func AddNewBranch(treeId uint, branchId uint) {
+func AddNewBranch(treeId uint, address string, branchId uint) {
 	branch := make([]uint, 0)
 	UserTree[branchId] = SingleUser{
+		Address:       address,
 		RecommenderId: treeId,
 		Power:         0,
 		Branch:        branch,
@@ -26,6 +27,7 @@ func AddNewBranch(treeId uint, branchId uint) {
 	//newBranch := make([]uint, 0)
 	newBranch := append(UserTree[treeId].Branch, branchId)
 	UserTree[treeId] = SingleUser{
+		Address:       address,
 		RecommenderId: UserTree[treeId].RecommenderId,
 		Power:         UserTree[treeId].Power,
 		Branch:        newBranch,

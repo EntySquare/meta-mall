@@ -67,3 +67,14 @@ func TestInsertAccount(t *testing.T) {
 	}).Error
 	fmt.Println(err)
 }
+func TestInsertManager(t *testing.T) {
+	database.ConnectDB()
+
+	err := database.DB.Create(&model.Manager{
+		UserName: "testUser",
+		Password: "150v1d391",
+		Token:    "UTGhAkykkIRuD78tY43Tw1rv4ClL1D391CIK3H5EvdJMrNRRjuOmgSdsCR414M:1710249311",
+		Flag:     "1",
+	}).Error
+	fmt.Println(err)
+}

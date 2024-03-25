@@ -35,12 +35,19 @@ func LoginAndRegister(c *fiber.Ctx) error {
 			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "", ""))
 		}
 	}
-
 	recommendUser := model.User{}
 	fmt.Println("推荐码：", reqParams.Code)
 	database.DB.Model(&model.User{}).Where("uid = ?", reqParams.Code).Find(&recommendUser)
 
 	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		if !pkg.CheckTokenValidityTime(&user.Token) {
+			returnT = pkg.RandomString(64)
+			user.Token = returnT + ":" + strconv.FormatInt(time.Now().Unix(), 10)
+			err := user.UpdateUserToken(database.DB)
+			if err != nil {
+				return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "update token error", ""))
+			}
+		}
 		if err != nil {
 			if !strings.Contains(err.Error(), "record not found") {
 				return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "user get by addresss error", ""))
@@ -53,13 +60,13 @@ func LoginAndRegister(c *fiber.Ctx) error {
 			returnT = pkg.RandomString(64)
 			user.Token = returnT + ":" + strconv.FormatInt(time.Now().Unix(), 10)
 			user.RecommendId = recommendUser.ID
-			api.AddNewBranch(user.RecommendId, user.ID)
-			err = user.InsertNewUser(tx)
+
+			newId, err := user.InsertNewUser(tx)
 			if err != nil {
 				return c.JSON(pkg.MessageResponse(config.TOKEN_FAIL, err.Error(), "注册失败"))
 			}
-
-			err := user.GetByWalletAddress(tx)
+			api.AddNewBranch(user.RecommendId, reqParams.WalletAddress, newId)
+			err = user.GetByWalletAddress(tx)
 			if err != nil {
 				return err
 			}
@@ -98,7 +105,7 @@ func MyInvestment(c *fiber.Ctx) error {
 		InvestmentUsers: make([]types.InvestmentUserInfo, 0),
 	}
 	data.Address = user.WalletAddress
-	data.InvestmentAddress = config.Config("WEB_URL") + "/&code=" + user.UID
+	data.InvestmentAddress = config.Config("WEB_URL") + "/?code=" + user.UID
 	data.Level = user.Level
 	data.Powers = api.UserTree[userId].Power
 	//data.AccumulatedPledgeCount = api.GetBranchAccumulatedPower(userId)
@@ -129,18 +136,22 @@ func MyPromotion(c *fiber.Ctx) error {
 	}
 	flow := model.ContractFlow{}
 	flow.UserId = userId
-	flow.Flag = "2"
+	flow.Flag = "4"
 	flow.TokenName = "unc"
 	mrb, err := flow.GetUserReleaseBenefitByTokenName(database.DB)
 	if err != nil {
 		return err
 	}
-	mb := 2100.0
+	flow.Flag = "3"
+	mb, err := flow.GetUserReleaseBenefitByTokenName(database.DB)
+	if err != nil {
+		return err
+	}
 	data := types.MyPromotionResp{
 		AllPromotionPower:           api.GetBranchAccumulatedPower(0),
 		MyPromotionPower:            api.UserTree[userId].Power,
-		MyPromotionBenefit:          mb,
-		MyAvailablePromotionBenefit: mb - mrb,
+		MyPromotionBenefit:          mb + mrb,
+		MyAvailablePromotionBenefit: mb,
 	}
 	return c.JSON(pkg.SuccessResponse(data))
 }
@@ -170,6 +181,7 @@ func GetAvailableBenefit(c *fiber.Ctx) error {
 		}
 	} else if reqParams.Type == "2" {
 		myFlows.Flag = "3"
+		myFlows.TokenName = "unc"
 		contractFlows, err = myFlows.GetByContractFlowByUserId(database.DB)
 		if err != nil {
 			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get contract flow error", ""))

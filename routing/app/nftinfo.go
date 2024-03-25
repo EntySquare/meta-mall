@@ -14,7 +14,6 @@ import (
 
 func GetNftList(c *fiber.Ctx) error {
 	//userId := c.Locals("user_id")
-
 	nft := model.NftInfo{}
 	nl, err := nft.GetAllNftInfoByFlag(1, database.DB)
 	if err != nil {
@@ -32,6 +31,7 @@ func GetNftList(c *fiber.Ctx) error {
 			ContractAddress: nft.ContractAddress,
 			OwnerAddress:    nft.OwnerAddress,
 			Price:           nft.Price,
+			TokenName:       nft.ChainName,
 			Power:           nft.Power,
 			TypeNum:         nft.TypeNum,
 			ImgUrl:          nft.ImgUrl,
@@ -147,6 +147,7 @@ func GetMyNftList(c *fiber.Ctx) error {
 				ContractAddress: nft.ContractAddress,
 				OwnerAddress:    nft.OwnerAddress,
 				Price:           nft.Price,
+				TokenName:       nft.ChainName,
 				Power:           nft.Power,
 				TypeNum:         nft.TypeNum,
 				ImgUrl:          nft.ImgUrl,

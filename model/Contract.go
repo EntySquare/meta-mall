@@ -53,7 +53,7 @@ func (c *Contract) GetByHash(db *gorm.DB) error {
 
 func (c *Contract) SelectMyContract(db *gorm.DB) (cs []Contract, err error) {
 	cs = make([]Contract, 0)
-	err = db.Model(&Contract{}).Where("owner_id = ?", c.OwnerId).Find(&cs).Error
+	err = db.Model(&Contract{}).Where("owner_id = ? and flag in ('1','2')", c.OwnerId).Find(&cs).Error
 	return cs, err
 }
 

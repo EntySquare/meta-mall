@@ -78,10 +78,10 @@ func AuthManagerApp() fiber.Handler {
 		//c.Locals("guo", name)
 		//c.Locals("guo2", "23123123123123123")
 		var (
-			userId int64
-			token  = c.Get(config.LOCAL_TOKEN)
-			db     = database.DB
-			err    error
+			username string
+			token    = c.Get(config.LOCAL_TOKEN)
+			db       = database.DB
+			err      error
 		)
 
 		//开关 测试打开token
@@ -99,7 +99,7 @@ func AuthManagerApp() fiber.Handler {
 			return c.JSON(pkg.MessageResponse(config.TOKEN_FAIL, "token is null", ""))
 		}
 
-		userId, tokenData, err := model.UserSelectIdByToken(db, token)
+		username, tokenData, err := model.ManagerSelectIdByToken(db, token)
 		if err != nil {
 			return c.JSON(pkg.MessageResponse(config.TOKEN_FAIL, "token is invalid", ""))
 		}
@@ -112,7 +112,7 @@ func AuthManagerApp() fiber.Handler {
 		}
 
 		//刷新token有效时间
-		if err = model.UserRefreshToken(db, userId, tokenData); err != nil {
+		if err = model.ManagerRefreshToken(db, username, tokenData); err != nil {
 			return c.JSON(pkg.MessageResponse(config.TOKEN_FAIL, "db UserRefreshAppToken err", ""))
 		}
 		//if true {
@@ -123,17 +123,7 @@ func AuthManagerApp() fiber.Handler {
 		//	return nil
 		//}
 		//
-		var u = model.User{}
-		u.ID = uint(userId)
-		err = u.GetById(db)
-		if err != nil {
-			return err
-		}
-		if u.WalletAddress != config.Config("CONTRACT_PUBLIC_KEY_ZH") {
-			return c.JSON(pkg.MessageResponse(config.TOKEN_FAIL, "not manager", ""))
-		}
-		c.Locals(config.LOCAL_USERID_UINT, uint(userId))
-		c.Locals(config.LOCAL_USERID_INT64, userId)
+		c.Locals(config.LOCAL_MANAGERNAME_STRING, username)
 		_ = c.Next()
 		//c.JSON("231231231")
 		return nil

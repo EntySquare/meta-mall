@@ -6,15 +6,23 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contr
 // @author yueliyangzi
 contract METANFT is ERC721{
     using SafeMathCell for uint256;
-    IERC20 public usdtToken;
-    IERC20 public uncToken;
+    // IERC20 public usdtToken;
+    // IERC20 public uncToken;
     address public owner;
+    uint256 index;
     mapping(uint256 => uint256) usdtPrice;
     mapping(uint256 => uint256) uncPrice;
-
-    constructor(address _usdtTokenAddress,address _uncTokenAddress,address holder) ERC721("NFTContract", "NFTC") {
-        usdtToken = IERC20(_usdtTokenAddress);
-        uncToken = IERC20(_uncTokenAddress);
+    mapping(uint => address) private _owners;
+    mapping(uint256 => uint256) successTrade;
+    // address 到 持仓数量 的持仓量映射
+    mapping(address => uint) private _balances;
+    // tokenID 到 授权地址 的授权映射
+    mapping(uint => address) private _tokenApprovals;
+    //address _usdtTokenAddress,address _uncTokenAddress,
+    constructor(address holder) ERC721("NFTContract", "NFTC") {
+        // usdtToken = IERC20(_usdtTokenAddress);
+        // uncToken = IERC20(_uncTokenAddress);
+        index = 0;
         owner = holder;
     }
 
@@ -42,28 +50,47 @@ contract METANFT is ERC721{
         require(msg.sender == owner, "Only owner can transfer ownership");
         owner = newOwner;
     }
+    //   function _approve(
+    //     address owner,
+    //     address to,
+    //     uint tokenId
+    // ) private {
+    //     _tokenApprovals[tokenId] = to;
+    //     emit Approval(owner, to, tokenId);
+    // }
+    // function transfer(address from ,address to ,uint256 tokenId) internal {
+    //     require(to != address(0), "transfer to the zero address");
+    //     _approve(from, to, tokenId);
+    //     _balances[from] -= 1;
+    //     _balances[to] += 1;
+    //     _owners[tokenId] = to;
+    //     emit Transfer(from, to, tokenId);
+    // }
+    // function triggerOwnershipTransferUsdt(uint256 tokenId) external payable {
+    //    //require(usdtPrice(tokenId) != 0, "nft has not set price");
+    //     require(usdtToken.balanceOf(msg.sender) >= usdtPrice[tokenId], "Insufficient allowance");
+    //     // Transfer USDT to the contract
+    //     if (usdtPrice[tokenId] != 0 ){
+    //         require(usdtToken.transferFrom(msg.sender, owner, usdtPrice[tokenId]), "USDT transfer failed");
+    //         successTrade[index] = tokenId;
+    //         index ++;
+    //         // Transfer ownership of NFT
+    //         transfer(owner,msg.sender, tokenId);
+    //     }
 
-    function triggerOwnershipTransferUsdt(uint256 tokenId) external {
-        //require(usdtPrice(tokenId) != 0, "nft has not set price");
-        require(usdtToken.balanceOf(msg.sender) >= usdtPrice[tokenId], "Insufficient allowance");
-        // Transfer USDT to the contract
-        if (usdtPrice[tokenId] != 0 ){
-            require(usdtToken.transferFrom(msg.sender, owner, usdtPrice[tokenId]), "USDT transfer failed");
-            // Transfer ownership of NFT
-            _transfer(owner,msg.sender, tokenId);
-        }
-
-    }
-    function triggerOwnershipTransferUnc(uint256 tokenId) external  {
-        //require(uncPrice(tokenId) != 0, "nft has not set price");
-        require(usdtToken.balanceOf(msg.sender) >= uncPrice[tokenId], "Insufficient allowance");
-        // Transfer USDT to the contract
-        if (uncPrice[tokenId] != 0 ){
-            require(uncToken.transferFrom(msg.sender, owner, uncPrice[tokenId]), "USDT transfer failed");
-            // Transfer ownership of NFT
-            _transfer(owner,msg.sender, tokenId);
-        }
-    }
+    // }
+    //  function triggerOwnershipTransferUnc(uint256 tokenId) external  payable{
+    //     //require(uncPrice(tokenId) != 0, "nft has not set price");
+    //     require(usdtToken.balanceOf(msg.sender) >= uncPrice[tokenId], "Insufficient allowance");
+    //     // Transfer USDT to the contract
+    //     if (uncPrice[tokenId] != 0 ){
+    //         require(uncToken.transferFrom(msg.sender, owner, uncPrice[tokenId]), "USDT transfer failed");
+    //         // Transfer ownership of NFT
+    //         successTrade[index] = tokenId;
+    //         index ++;
+    //         transfer(owner,msg.sender, tokenId);
+    //     }
+    // }
 
     modifier onlyManager() {
         require(
@@ -74,7 +101,6 @@ contract METANFT is ERC721{
     }
 
 }
-
 // @title cell library
 // @author yueliyangzi
 library SafeMathCell {

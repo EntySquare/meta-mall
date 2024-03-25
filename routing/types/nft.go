@@ -8,6 +8,7 @@ type NftDetail struct {
 	ContractAddress string  `json:"contract_address"` //合约地址
 	OwnerAddress    string  `json:"owner_address"`    //拥有者地址
 	Price           float64 `json:"price"`            //价格
+	TokenName       string  `json:"token_name"`       //代币
 	Power           float64 `json:"power"`            //算力
 	TypeNum         int64   `json:"type_num"`         //种类
 	ImgUrl          string  `json:"img_url"`          //图片地址
@@ -34,6 +35,7 @@ type NftOrderDetail struct {
 	ContractAddress string  `json:"contract_address"` //合约地址
 	OwnerAddress    string  `json:"owner_address"`    //拥有者地址
 	Price           float64 `json:"price"`            //价格
+	TokenName       string  `json:"token_name"`       //代币
 	Power           float64 `json:"power"`            //算力
 	TypeNum         int64   `json:"type_num"`         //种类
 	ImgUrl          string  `json:"img_url"`          //图片地址
