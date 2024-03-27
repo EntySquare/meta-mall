@@ -3,14 +3,17 @@ package api
 import (
 	"errors"
 	"gorm.io/gorm"
+	"math"
 	"meta-mall/model"
 	"time"
 )
 
 var maps map[string]string
+var UncAmount float64
+var MetaAmount float64
 
 // IncomeRunP 收益跑p
-func IncomeRunP(db *gorm.DB) {
+func IncomeRunP(db *gorm.DB) error {
 	//更新质押记录数据
 
 	//跑p查询全部质押记录
@@ -21,8 +24,6 @@ func IncomeRunP(db *gorm.DB) {
 			return errors.New("ok")
 		}
 		var ap float64
-		var ab float64
-		ab = 100
 		list, err := model.SelectContractByFlag(tx, "2")
 		if err != nil {
 			panic(err)
@@ -40,7 +41,6 @@ func IncomeRunP(db *gorm.DB) {
 				rate = 1
 			}
 			ap += mp * rate
-			println(rate)
 		}
 		for _, v := range list {
 			tt := time.Now()
@@ -55,17 +55,67 @@ func IncomeRunP(db *gorm.DB) {
 			} else {
 				rate = 1
 			}
-			mb := ab * mp * rate / ap
+			mb := 0.0
+			if ap != 0 {
+				mb += round((UncAmount*mp*rate*6)/(ap*10), 4)
+			}
+			if GetBranchAccumulatedPower(0) != 0 {
+				mb += round((GetBranchAccumulatedPower(v.OwnerId)*4)/(GetBranchAccumulatedPower(0)*10), 4)
+			}
+
 			cf := model.ContractFlow{
 				UserId:      v.OwnerId,
 				ContractId:  v.ID,
 				Contract:    v,
 				ReleaseNum:  mb,
 				ReleaseDate: &tt,
-				TokenName:   "usdt",
+				TokenName:   "unc",
 				Flag:        "1",
 			}
-			err := cf.InsertNewContractFlow(db)
+			mb2 := 0.0
+			if ap != 0 {
+				mb2 += round((MetaAmount*mp*rate*6)/(ap*10), 4)
+			}
+			if GetBranchAccumulatedPower(0) != 0 {
+				mb2 += round((GetBranchAccumulatedPower(v.OwnerId)*4)/(GetBranchAccumulatedPower(0)*10), 4)
+			}
+			cf2 := model.ContractFlow{
+				UserId:      v.OwnerId,
+				ContractId:  v.ID,
+				Contract:    v,
+				ReleaseNum:  mb2,
+				ReleaseDate: &tt,
+				TokenName:   "meta",
+				Flag:        "1",
+			}
+			err := cf.InsertNewContractFlow(tx)
+			if err != nil {
+				return err
+			}
+			err = cf2.InsertNewContractFlow(tx)
+			if err != nil {
+				return err
+			}
+			account := model.Account{}
+			account.UserId = v.OwnerId
+			err = account.GetByUserId(tx)
+			if err != nil {
+				return err
+			}
+			account.UNCBalance = account.UNCBalance + mb2
+			account.METABalance = account.METABalance + mb2
+			err = account.UpdateAccount(tx)
+			if err != nil {
+				return err
+			}
+			contract := model.Contract{}
+			contract.ID = v.ID
+			err = contract.GetById(tx)
+			if err != nil {
+				return err
+			}
+			contract.AccumulatedBenefit = contract.AccumulatedBenefit + mb
+			err = contract.UpdateContract(tx)
 			if err != nil {
 				return err
 			}
@@ -111,6 +161,11 @@ func IncomeRunP(db *gorm.DB) {
 		return nil
 	})
 	if err != nil {
-		println("error")
+		return err
 	}
+	return nil
+}
+func round(num float64, places int) float64 {
+	shift := math.Pow(10, float64(places))
+	return math.Floor(num*shift+.5) / shift
 }

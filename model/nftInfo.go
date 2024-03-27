@@ -20,7 +20,7 @@ type NftInfo struct {
 	Power           float64 //T
 	TypeNum         int64   //nft种类
 	ImgUrl          string
-	Flag            string // // 启用标志(1-可购买 2-预定中 0-已售出)
+	Flag            string // // 启用标志(1-可购买 2-预定中 0-已售出 3-锁定中 4-已下架)
 }
 
 func NewNftInfo(id int64) NftInfo {

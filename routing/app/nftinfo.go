@@ -42,6 +42,72 @@ func GetNftList(c *fiber.Ctx) error {
 	}
 	return c.JSON(pkg.SuccessResponse(data))
 }
+func PurchaseCheck(c *fiber.Ctx) error {
+	fmt.Println("/PurchaseCheck api...")
+	reqParams := types.PurchaseCheackReq{}
+	err := c.BodyParser(&reqParams)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "parser error", ""))
+	}
+	nft := model.NftInfo{}
+	nft.ID = reqParams.NftId
+	err = nft.GetById(database.DB)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get nft error", ""))
+	}
+	if nft.Flag == "3" {
+		return c.JSON(pkg.SuccessResponse(-1))
+	} else if nft.Flag == "1" {
+		err = database.DB.Transaction(func(tx *gorm.DB) error {
+			nft.Flag = "3"
+			err := nft.UpdateNftInfo(tx)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
+			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "update nft status error", ""))
+		}
+
+	} else {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "nft status error", ""))
+	}
+	return c.JSON(pkg.SuccessResponse(1))
+}
+func CancelCheck(c *fiber.Ctx) error {
+	fmt.Println("/CancelCheck api...")
+	reqParams := types.CancelCheackReq{}
+	err := c.BodyParser(&reqParams)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "parser error", ""))
+	}
+	nft := model.NftInfo{}
+	nft.ID = reqParams.NftId
+	err = nft.GetById(database.DB)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get nft error", ""))
+	}
+	if nft.Flag == "1" {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "nft has not been locked", ""))
+	} else if nft.Flag == "3" {
+		err = database.DB.Transaction(func(tx *gorm.DB) error {
+			nft.Flag = "1"
+			err := nft.UpdateNftInfo(tx)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
+			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "update nft status error", ""))
+		}
+
+	} else {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "nft status error", ""))
+	}
+	return c.JSON(pkg.SuccessResponse(""))
+}
 func PurchaseNft(c *fiber.Ctx) error {
 	fmt.Println("/PurchaseNft api...")
 	reqParams := types.PurchaseNftReq{}
@@ -62,7 +128,7 @@ func PurchaseNft(c *fiber.Ctx) error {
 	if err != nil {
 		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get nft error", ""))
 	}
-	if nft.Flag != "1" {
+	if nft.Flag != "3" {
 		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "nft is not saleable now error", ""))
 	}
 	err = database.DB.Transaction(func(tx *gorm.DB) error {
@@ -74,12 +140,12 @@ func PurchaseNft(c *fiber.Ctx) error {
 			Flag:         "1",
 			Buyer:        user,
 		}
-		err = order.InsertNewOrder(database.DB)
+		err = order.InsertNewOrder(tx)
 		if err != nil {
 			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "insert order error", ""))
 		}
 		nft.Flag = "2"
-		err = nft.UpdateNftInfo(database.DB)
+		err = nft.UpdateNftInfo(tx)
 		if err != nil {
 			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "update nft error", ""))
 		}
@@ -98,7 +164,7 @@ func PurchaseNft(c *fiber.Ctx) error {
 			OwnerId:            userId,
 			Owner:              user,
 		}
-		err = contract.InsertNewContract(database.DB)
+		err = contract.InsertNewContract(tx)
 		if err != nil {
 			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "insert contract error", ""))
 		}

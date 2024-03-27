@@ -75,14 +75,14 @@ func TestInsertContractFlow(t *testing.T) {
 	database.ConnectDB()
 	tt := time.Now()
 	c := model.Contract{}
-	c.ID = 11
+	c.ID = 50
 	err := c.GetById(database.DB)
 	if err != nil {
 		return
 	}
 	err = database.DB.Create(&model.ContractFlow{
-		UserId:      2,
-		ContractId:  1,
+		UserId:      3,
+		ContractId:  50,
 		Contract:    c,
 		ReleaseNum:  10,
 		ReleaseDate: &tt,
@@ -90,13 +90,13 @@ func TestInsertContractFlow(t *testing.T) {
 		Flag:        "1",
 	}).Error
 	err = database.DB.Create(&model.ContractFlow{
-		UserId:      2,
-		ContractId:  1,
+		UserId:      3,
+		ContractId:  50,
 		Contract:    c,
 		ReleaseNum:  10,
 		ReleaseDate: &tt,
-		TokenName:   "usdt",
-		Flag:        "2",
+		TokenName:   "unc",
+		Flag:        "3",
 	}).Error
 	fmt.Println(err)
 }

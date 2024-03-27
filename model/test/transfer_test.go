@@ -9,21 +9,23 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"log"
+	"math"
 	"math/big"
 	contract "meta-mall/contracts"
 	"testing"
 )
 
 func TestTransfer(t *testing.T) {
-	rpcURL := "https://bsc-dataseed.binance.org/"
+	//rpcURL := "https://bsc-dataseed.binance.org/"
+	rpcURL := "https://public.stackup.sh/api/v1/node/bsc-testnet/"
 	// 转账的私钥
-	privateKey := "YOUR_PRIVATE_KEY"
+	privateKey := "0xdaba574f36fdc73322e3f0eb30687b06b7eaf0f222b69efa0d6f19a659cf3c76"
 	// USDT合约地址
-	usdtContractAddress := "0x71c19b3364f3f67294f25296e34e8f3c28b96bdc"
+	usdtContractAddress := "0x9EDd0f2B153660469E69fd0436cab3CBaA3CAADE" //test
 	// 转账金额
 	transferAmount := big.NewInt(100000000000000000) // 0.1 USDT
 	// 转账目标地址
-	toAddress := "0xYOUR_TARGET_ADDRESS"
+	toAddress := "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1"
 	// 初始化客户端连接
 	client, err := ethclient.Dial(rpcURL)
 	if err != nil {
@@ -45,8 +47,8 @@ func TestTransfer(t *testing.T) {
 		log.Fatal(err)
 	}
 	auth.Nonce = big.NewInt(int64(nonce))
-	auth.Value = big.NewInt(0)    // 转账的ETH数量，如果是转账ETH则需要设置
-	auth.GasLimit = uint64(21000) // 转账的Gas上限
+	auth.Value = big.NewInt(0)      // 转账的ETH数量，如果是转账ETH则需要设置
+	auth.GasLimit = uint64(1000000) // 转账的Gas上限
 	auth.GasPrice, err = client.SuggestGasPrice(context.Background())
 	if err != nil {
 		log.Fatal(err)
@@ -70,6 +72,18 @@ func TestTransfer(t *testing.T) {
 		log.Fatal(err)
 	}
 	fmt.Printf("Transaction receipt: %+v\n", receipt)
+}
+
+func TestCal(t *testing.T) {
+	var value float64 = 123.456
+	var exponent int = 18
+
+	// 将10的指数转换为整数幂
+	multiplier := math.Pow10(exponent - 6)
+	var result *big.Int
+	bv := big.NewInt(int64(value * math.Pow10(6)))
+	result = bv.Mul(bv, big.NewInt(int64(multiplier)))
+	println(result.String())
 }
 
 //func TestTransfer(t *testing.T) {

@@ -17,11 +17,18 @@ type NftDetail struct {
 type NftListResp struct {
 	List []NftDetail `json:"nft_list"`
 }
+type PurchaseCheackReq struct {
+	NftId uint `json:"id"`
+}
+type CancelCheackReq struct {
+	NftId uint `json:"id"`
+}
 type PurchaseNftReq struct {
 	NftId     uint   `json:"id"`
 	Hash      string `json:"hash"`
 	TokenName string `json:"token_name"`
 }
+
 type PurchaseNftResp struct {
 	Price float64 `json:"price"`
 }

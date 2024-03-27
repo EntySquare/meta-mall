@@ -7,6 +7,7 @@ import (
 	"meta-mall/config"
 	"meta-mall/database"
 	"meta-mall/model"
+	"meta-mall/model/api"
 	"meta-mall/pkg"
 	"meta-mall/routing/types"
 	"strconv"
@@ -82,7 +83,7 @@ func InsertNft(c *fiber.Ctx) error {
 				ImgUrl:          reqParams.ImgUrl,
 				Flag:            "1",
 			}
-			err := nft.InsertNewNftInfo(database.DB)
+			err := nft.InsertNewNftInfo(tx)
 			if err != nil {
 				return err
 			}
@@ -171,4 +172,65 @@ func TokenIdFrom(c *fiber.Ctx) error {
 	}
 	data.TokenId = id
 	return c.JSON(pkg.SuccessResponse(data))
+}
+func SetIncome(c *fiber.Ctx) error {
+	fmt.Println("/SetIncome api...")
+	reqParams := types.SetIncomeReq{}
+	userName := c.Locals(config.LOCAL_MANAGERNAME_STRING).(string)
+	manger := model.Manager{}
+	manger.UserName = userName
+	err := manger.GetByUsername(database.DB)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get user error", ""))
+	}
+	err = c.BodyParser(&reqParams)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "parser error", ""))
+	}
+	api.UncAmount = reqParams.UncAmount
+	api.MetaAmount = reqParams.MetaAmount
+
+	return c.JSON(pkg.SuccessResponse(""))
+}
+func GetIncome(c *fiber.Ctx) error {
+	fmt.Println("/GetIncome api...")
+	data := types.GetIncomeResp{}
+	data.UncAmount = api.UncAmount
+	data.MetaAmount = api.MetaAmount
+	return c.JSON(pkg.SuccessResponse(data))
+}
+func OffNft(c *fiber.Ctx) error {
+	fmt.Println("/OffNft api...")
+	reqParams := types.OffNftReq{}
+	userName := c.Locals(config.LOCAL_MANAGERNAME_STRING).(string)
+	manger := model.Manager{}
+	manger.UserName = userName
+	err := manger.GetByUsername(database.DB)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get user error", ""))
+	}
+	err = c.BodyParser(&reqParams)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "parser error", ""))
+	}
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		for _, id := range reqParams.OffIdList {
+			nft := model.NftInfo{}
+			nft.ID = id
+			err := nft.GetById(tx)
+			if err != nil {
+				return err
+			}
+			nft.Flag = "4"
+			err = nft.UpdateNftInfo(tx)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "update status error", ""))
+	}
+	return c.JSON(pkg.SuccessResponse(""))
 }

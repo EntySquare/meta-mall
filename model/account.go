@@ -7,12 +7,11 @@ import (
 // Account struct
 type Account struct {
 	gorm.Model
-	UserId            uint
-	USDTBalance       float64
-	USDTFrozenBalance float64
-	UNCBalance        float64
-	UNCFrozenBalance  float64
-	Flag              string // 启用标志(1-启用 0-停用)
+	UserId      uint
+	USDTBalance float64
+	METABalance float64
+	UNCBalance  float64
+	Flag        string // 启用标志(1-启用 0-停用)
 }
 
 func (ac *Account) GetById(db *gorm.DB) error {

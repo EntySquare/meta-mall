@@ -94,7 +94,9 @@ func AuthManagerApp() fiber.Handler {
 
 		// 打印请求地址
 		log.Info("Request URL: ", c.Path())
-		log.Info("Request JSON: ", string(c.Body()))
+		if len(string(c.Body())) < 10000 {
+			log.Info("Request JSON: ", string(c.Body()))
+		}
 		if token == "" || len(token) < 10 {
 			return c.JSON(pkg.MessageResponse(config.TOKEN_FAIL, "token is null", ""))
 		}

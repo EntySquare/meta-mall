@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"fmt"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/savsgio/gotils/uuid"
 	"io"
@@ -38,8 +37,7 @@ func (f FileType) GetString() string {
 	}
 }
 
-// oss添加文件
-func SetFileOss(reader io.Reader, format string, fileFolder FileType) (string, error) {
+func SetFileOss(reader io.Reader, format string) (string, error) {
 	var (
 		fileName = uuid.V4() + "-" + strconv.Itoa(TimeNow().Nanosecond())
 		client   *oss.Client
@@ -55,13 +53,13 @@ func SetFileOss(reader io.Reader, format string, fileFolder FileType) (string, e
 		return "", err
 	}
 
-	urlRoute := fileFolder.GetString() + "/" + fileName + format
+	urlRoute := "admin/" + fileName + format
 
 	if err = bucket.PutObject(urlRoute, reader); err != nil {
 		return "", err
 	}
 
-	fmt.Println(imgUrl + "/" + urlRoute)
+	//fmt.Println(imgUrl + "/" + urlRoute)
 
 	return imgUrl + "/" + urlRoute, nil
 }

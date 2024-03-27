@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
+	"math"
+	"math/big"
 	"meta-mall/config"
 	"meta-mall/database"
 	"meta-mall/model"
@@ -43,7 +45,7 @@ func LoginAndRegister(c *fiber.Ctx) error {
 		if !pkg.CheckTokenValidityTime(&user.Token) {
 			returnT = pkg.RandomString(64)
 			user.Token = returnT + ":" + strconv.FormatInt(time.Now().Unix(), 10)
-			err := user.UpdateUserToken(database.DB)
+			err := user.UpdateUserToken(tx)
 			if err != nil {
 				return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "update token error", ""))
 			}
@@ -71,12 +73,11 @@ func LoginAndRegister(c *fiber.Ctx) error {
 				return err
 			}
 			var acc = model.Account{
-				UserId:            user.ID,
-				USDTBalance:       0,
-				UNCBalance:        0,
-				USDTFrozenBalance: 0,
-				UNCFrozenBalance:  0,
-				Flag:              "1",
+				UserId:      user.ID,
+				USDTBalance: 0,
+				UNCBalance:  0,
+				METABalance: 0,
+				Flag:        "1",
 			}
 			err = acc.InsertNewAccount(tx)
 			if err != nil {
@@ -149,7 +150,7 @@ func MyPromotion(c *fiber.Ctx) error {
 	}
 	data := types.MyPromotionResp{
 		AllPromotionPower:           api.GetBranchAccumulatedPower(0),
-		MyPromotionPower:            api.UserTree[userId].Power,
+		MyPromotionPower:            api.GetBranchAccumulatedPower(userId),
 		MyPromotionBenefit:          mb + mrb,
 		MyAvailablePromotionBenefit: mb,
 	}
@@ -200,14 +201,14 @@ func GetAvailableBenefit(c *fiber.Ctx) error {
 			} else {
 				return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "type error", ""))
 			}
-			err := flow.UpdateContractFlow(database.DB)
+			err := flow.UpdateContractFlow(tx)
 			if err != nil {
 				return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "update contract flow error", ""))
 			}
 		}
 		account := model.Account{}
 		account.UserId = userId
-		err = account.GetByUserId(database.DB)
+		err = account.GetByUserId(tx)
 		if err != nil {
 			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get account  error", ""))
 		}
@@ -218,28 +219,32 @@ func GetAvailableBenefit(c *fiber.Ctx) error {
 		} else {
 			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "token name error", ""))
 		}
+		hash, err := api.ReleaseERC20(user.WalletAddress, benefitCalculate(mab, 18), reqParams.TokenName)
+		if err != nil {
+			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "transfer token error", ""))
+		}
 		tt := time.Now()
 		if mab != 0 {
 			flow := model.AccountFlow{
 				AccountId:       account.ID,
 				Account:         account,
 				Num:             mab,
-				Chain:           "bsc",
+				Chain:           reqParams.TokenName,
 				Address:         user.WalletAddress,
-				Hash:            "",
+				Hash:            hash,
 				TokenName:       reqParams.TokenName,
 				AskForTime:      &tt,
 				AchieveTime:     &tt,
 				TransactionType: "2",
 				Flag:            "1",
 			}
-			err = flow.InsertNewAccountFlow(database.DB)
+			err = flow.InsertNewAccountFlow(tx)
 			if err != nil {
 				return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "insert account flow error", ""))
 			}
 		}
 
-		err = account.UpdateAccount(database.DB)
+		err = account.UpdateAccount(tx)
 		if err != nil {
 			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "update account error", ""))
 		}
@@ -257,4 +262,13 @@ func getLastDay() int64 {
 	y, m, d := oldTime.Date()
 	date := int64(y*10000 + int(m)*100 + d)
 	return date
+}
+func benefitCalculate(value float64, exponent int) *big.Int {
+	// 将10的指数转换为整数幂
+	multiplier := math.Pow10(exponent - 6)
+	var result *big.Int
+	bv := big.NewInt(int64(value * math.Pow10(6)))
+	result = bv.Mul(bv, big.NewInt(int64(multiplier)))
+	return result
+
 }

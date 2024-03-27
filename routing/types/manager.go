@@ -23,3 +23,14 @@ type InsertNftReq struct {
 type TokenIdFromResp struct {
 	TokenId int64 `json:"token_id"`
 }
+type SetIncomeReq struct {
+	UncAmount  float64 `json:"unc_amount"`
+	MetaAmount float64 `json:"meta_amount"`
+}
+type GetIncomeResp struct {
+	UncAmount  float64 `json:"unc_amount"`
+	MetaAmount float64 `json:"meta_amount"`
+}
+type OffNftReq struct {
+	OffIdList []uint `json:"off_id_list"`
+}

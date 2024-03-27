@@ -33,7 +33,7 @@ func main() {
 		fmt.Println(err.Error())
 	}
 
-	InitTask()
+	//InitTask()
 	go scanContract(database.DB)
 	//  go eth.ScanEth(database.DB)
 	routing.Setup(fiberApp)
@@ -152,6 +152,6 @@ func scanContract(db *gorm.DB) {
 			fmt.Println(err)
 			panic(err)
 		}
-		time.Sleep(time.Second * 320)
+		time.Sleep(time.Second * 60)
 	}
 }
