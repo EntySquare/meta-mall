@@ -7,6 +7,7 @@ type LoginMangerReq struct {
 
 type LoginManagerResp struct {
 	Token string `json:"token"`
+	Flag  string `json:"flag"`
 }
 type InsertNftReq struct {
 	Name            string  `json:"name"`
@@ -32,5 +33,21 @@ type GetIncomeResp struct {
 	MetaAmount float64 `json:"meta_amount"`
 }
 type OffNftReq struct {
+	OffIdList []uint `json:"off_id_list"`
+}
+type Member struct {
+	Id            uint   `json:"id"`
+	WalletAddress string `json:"wallet_address"`
+	Time          int64  `json:"time"` //开始时间
+	Flag          string `json:"flag"`
+}
+type GetMemberList struct {
+	List []Member `json:"list"`
+}
+type CreateNewMemberReq struct {
+	UserName string `json:"username"`
+	Password string `json:"password"`
+}
+type OffMemberReq struct {
 	OffIdList []uint `json:"off_id_list"`
 }

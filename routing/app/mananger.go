@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -23,7 +24,8 @@ func LoginManager(c *fiber.Ctx) error {
 		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "parser error", ""))
 	}
 	username := reqParams.UserName
-	password := reqParams.Password
+	inputPassword := reqParams.Password
+	password := api.Get256Pw(inputPassword)
 	manager := model.Manager{}
 	manager.UserName = username
 	err = manager.GetByUsername(database.DB)
@@ -49,7 +51,7 @@ func LoginManager(c *fiber.Ctx) error {
 		c.Locals(config.LOCAL_TOKEN, returnT)
 		data.Token = returnT
 	}
-
+	data.Flag = manager.Flag
 	return c.JSON(pkg.SuccessResponse(data))
 }
 func InsertNft(c *fiber.Ctx) error {
@@ -98,74 +100,81 @@ func InsertNft(c *fiber.Ctx) error {
 func GetManagerNftList(c *fiber.Ctx) error {
 	//userId := c.Locals("user_id")
 	nft := model.NftInfo{}
-	nl, err := nft.GetAllNftInfoByFlag(1, database.DB)
-	nl2, err := nft.GetAllNftInfoByFlag(2, database.DB)
-	nl3, err := nft.GetAllNftInfoByFlag(0, database.DB)
+	userName := c.Locals(config.LOCAL_MANAGERNAME_STRING).(string)
+	manger := model.Manager{}
+	manger.UserName = userName
+	err := manger.GetByUsername(database.DB)
 	if err != nil {
-		return c.JSON(pkg.MessageResponse(config.TOKEN_FAIL, err.Error(), "查询账户失败"))
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get user error", ""))
 	}
 	data := types.NftListResp{
 		List: make([]types.NftDetail, 0),
 	}
-	for _, nft := range nl {
-		in := types.NftDetail{
-			Id:              nft.ID,
-			Name:            nft.Name,
-			NftNumber:       nft.NftNumber,
-			TokenId:         nft.TokenId,
-			ContractAddress: nft.ContractAddress,
-			OwnerAddress:    nft.OwnerAddress,
-			Price:           nft.Price,
-			TokenName:       nft.ChainName,
-			Power:           nft.Power,
-			TypeNum:         nft.TypeNum,
-			ImgUrl:          nft.ImgUrl,
-			Flag:            nft.Flag,
+	if manger.Flag == "1" {
+		nl, err := nft.GetAllNftInfo(database.DB)
+		if err != nil {
+			return c.JSON(pkg.MessageResponse(config.TOKEN_FAIL, err.Error(), "查询nft失败"))
 		}
-		data.List = append(data.List, in)
+		for _, nft := range nl {
+			in := types.NftDetail{
+				Id:              nft.ID,
+				Name:            nft.Name,
+				NftNumber:       nft.NftNumber,
+				TokenId:         nft.TokenId,
+				ContractAddress: nft.ContractAddress,
+				OwnerAddress:    nft.OwnerAddress,
+				Price:           nft.Price,
+				TokenName:       nft.ChainName,
+				Power:           nft.Power,
+				TypeNum:         nft.TypeNum,
+				ImgUrl:          nft.ImgUrl,
+				Flag:            nft.Flag,
+			}
+			data.List = append(data.List, in)
 
-	}
-	for _, nft := range nl2 {
-		in := types.NftDetail{
-			Id:              nft.ID,
-			Name:            nft.Name,
-			NftNumber:       nft.NftNumber,
-			TokenId:         nft.TokenId,
-			ContractAddress: nft.ContractAddress,
-			OwnerAddress:    nft.OwnerAddress,
-			Price:           nft.Price,
-			TokenName:       nft.ChainName,
-			Power:           nft.Power,
-			TypeNum:         nft.TypeNum,
-			ImgUrl:          nft.ImgUrl,
-			Flag:            nft.Flag,
 		}
-		data.List = append(data.List, in)
-
-	}
-	for _, nft := range nl3 {
-		in := types.NftDetail{
-			Id:              nft.ID,
-			Name:            nft.Name,
-			NftNumber:       nft.NftNumber,
-			TokenId:         nft.TokenId,
-			ContractAddress: nft.ContractAddress,
-			OwnerAddress:    nft.OwnerAddress,
-			Price:           nft.Price,
-			TokenName:       nft.ChainName,
-			Power:           nft.Power,
-			TypeNum:         nft.TypeNum,
-			ImgUrl:          nft.ImgUrl,
-			Flag:            nft.Flag,
+		return c.JSON(pkg.SuccessResponse(data))
+	} else if manger.Flag == "2" {
+		nft.OwnerAddress = manger.UserName
+		nl, err := nft.GetAllNftInfoByOwner(database.DB)
+		if err != nil {
+			return c.JSON(pkg.MessageResponse(config.TOKEN_FAIL, err.Error(), "查询nft失败"))
 		}
-		data.List = append(data.List, in)
+		for _, nft := range nl {
+			in := types.NftDetail{
+				Id:              nft.ID,
+				Name:            nft.Name,
+				NftNumber:       nft.NftNumber,
+				TokenId:         nft.TokenId,
+				ContractAddress: nft.ContractAddress,
+				OwnerAddress:    nft.OwnerAddress,
+				Price:           nft.Price,
+				TokenName:       nft.ChainName,
+				Power:           nft.Power,
+				TypeNum:         nft.TypeNum,
+				ImgUrl:          nft.ImgUrl,
+				Flag:            nft.Flag,
+			}
+			data.List = append(data.List, in)
 
+		}
 	}
+
 	return c.JSON(pkg.SuccessResponse(data))
 }
 func TokenIdFrom(c *fiber.Ctx) error {
 	data := types.TokenIdFromResp{}
 	nftInfo := model.NftInfo{}
+	userName := c.Locals(config.LOCAL_MANAGERNAME_STRING).(string)
+	manger := model.Manager{}
+	manger.UserName = userName
+	err := manger.GetByUsername(database.DB)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get user error", ""))
+	}
+	if manger.Flag != "1" {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "you don't have permission", ""))
+	}
 	id, err := nftInfo.GetMaxTokenId(database.DB)
 	if err != nil {
 		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get token id error", ""))
@@ -183,6 +192,9 @@ func SetIncome(c *fiber.Ctx) error {
 	if err != nil {
 		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get user error", ""))
 	}
+	if manger.Flag != "1" {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "you don't have permission", ""))
+	}
 	err = c.BodyParser(&reqParams)
 	if err != nil {
 		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "parser error", ""))
@@ -194,6 +206,16 @@ func SetIncome(c *fiber.Ctx) error {
 }
 func GetIncome(c *fiber.Ctx) error {
 	fmt.Println("/GetIncome api...")
+	manger := model.Manager{}
+	userName := c.Locals(config.LOCAL_MANAGERNAME_STRING).(string)
+	manger.UserName = userName
+	err := manger.GetByUsername(database.DB)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get user error", ""))
+	}
+	if manger.Flag != "1" {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "you don't have permission", ""))
+	}
 	data := types.GetIncomeResp{}
 	data.UncAmount = api.UncAmount
 	data.MetaAmount = api.MetaAmount
@@ -223,6 +245,132 @@ func OffNft(c *fiber.Ctx) error {
 			}
 			nft.Flag = "4"
 			err = nft.UpdateNftInfo(tx)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "update status error", ""))
+	}
+	return c.JSON(pkg.SuccessResponse(""))
+}
+func GetMemberList(c *fiber.Ctx) error {
+	fmt.Println("/CheckApplyMember api...")
+	userName := c.Locals(config.LOCAL_MANAGERNAME_STRING).(string)
+	manger := model.Manager{}
+	manger.UserName = userName
+	err := manger.GetByUsername(database.DB)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get user error", ""))
+	}
+	if manger.Flag != "1" {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "you don't have permission", ""))
+	}
+	apply := model.Manager{}
+	list, err := apply.SelectApplyList(database.DB)
+	if err != nil {
+		return err
+	}
+	data := types.GetMemberList{}
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		for _, a := range list {
+			data.List = append(data.List, types.Member{
+				Id:            a.ID,
+				WalletAddress: a.UserName,
+				Time:          a.CreatedAt.Unix(),
+				Flag:          a.Flag,
+			})
+		}
+		return nil
+	})
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get apply error", ""))
+	}
+	return c.JSON(pkg.SuccessResponse(data))
+}
+func CreateNewMember(c *fiber.Ctx) error {
+	fmt.Println("/CreateNewMember api...")
+	userName := c.Locals(config.LOCAL_MANAGERNAME_STRING).(string)
+	manger := model.Manager{}
+	manger.UserName = userName
+	err := manger.GetByUsername(database.DB)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get user error", ""))
+	}
+	if manger.Flag != "1" {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "you don't have permission", ""))
+	}
+	reqParams := types.CreateNewMemberReq{}
+	err = c.BodyParser(&reqParams)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "parser error", ""))
+	}
+	username := reqParams.UserName
+	inputPassword := reqParams.Password
+	password := api.Get256Pw(inputPassword)
+	ma := model.Manager{}
+	ma.UserName = username
+	err = ma.GetByUsername(database.DB)
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "", ""))
+		} else {
+			err = database.DB.Transaction(func(tx *gorm.DB) error {
+				token := pkg.RandomString(64) + ":" + strconv.FormatInt(time.Now().Unix(), 10)
+				newManager := model.Manager{
+					UserName: username,
+					Password: password,
+					Token:    token,
+					Flag:     "2",
+				}
+				_, err := newManager.InsertNewManager(tx)
+				if err != nil {
+					return err
+				}
+				return nil
+			})
+			if err != nil {
+				return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "", ""))
+			}
+		}
+	} else {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "username has been used before", ""))
+	}
+	return c.JSON(pkg.SuccessResponse(""))
+}
+func ChangeMemberStatus(c *fiber.Ctx) error {
+	fmt.Println("/OffMember api...")
+	reqParams := types.OffMemberReq{}
+	userName := c.Locals(config.LOCAL_MANAGERNAME_STRING).(string)
+	manger := model.Manager{}
+	manger.UserName = userName
+	err := manger.GetByUsername(database.DB)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "get user error", ""))
+	}
+	if manger.Flag != "1" {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "you don't have permission", ""))
+	}
+	err = c.BodyParser(&reqParams)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "parser error", ""))
+	}
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		for _, id := range reqParams.OffIdList {
+			ma := model.Manager{}
+			ma.ID = id
+			err := ma.GetById(tx)
+			if err != nil {
+				return err
+			}
+			if ma.Flag == "2" {
+				ma.Flag = "0"
+			} else if ma.Flag == "0" {
+				ma.Flag = "2"
+			}
+			err = ma.UpdateManager(tx)
 			if err != nil {
 				return err
 			}

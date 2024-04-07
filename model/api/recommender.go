@@ -38,9 +38,61 @@ func AddNewBranch(treeId uint, address string, branchId uint) {
 func GetBranchAccumulatedPower(userId uint) float64 {
 	AccumulatedPower := float64(0)
 	for _, branch := range UserTree[userId].Branch {
+		if len(UserTree[branch].Branch) > 0 {
+			AccumulatedPower += GetBranchAccumulatedPower(branch)
+		}
 		AccumulatedPower += UserTree[branch].Power
 	}
 	return AccumulatedPower
+}
+
+// GetUserPromotionPower  推广算力
+func GetUserPromotionPower(userId uint) float64 {
+	AccumulatedPower := float64(0)
+	for _, branch := range UserTree[userId].Branch {
+		AccumulatedPower += UserTree[branch].Power * 0.6
+		AccumulatedPower += getBranchPromotionPower(branch, 0)
+		if len(UserTree[branch].Branch) > 0 {
+			AccumulatedPower += getBranchPromotionPower(branch, 0)
+			if UserTree[branch].Level < UserTree[userId].Level {
+				differential := UserTree[userId].Level - UserTree[branch].Level
+				AccumulatedPower += getCommunityPromotionPower(branch, differential)
+			}
+		}
+	}
+	return AccumulatedPower
+}
+func getBranchPromotionPower(userId uint, generation int64) float64 {
+	AccumulatedPower := UserTree[userId].Power * 0.05
+	generation++
+	if generation == 5 {
+		return AccumulatedPower
+	}
+	for _, branch := range UserTree[userId].Branch {
+		if len(UserTree[branch].Branch) > 0 {
+			AccumulatedPower += getBranchPromotionPower(branch, generation)
+		}
+	}
+	return AccumulatedPower
+}
+
+// 534
+func getCommunityPromotionPower(userId uint, differential int64) float64 {
+	AccumulatedPower := UserTree[userId].Power * 0.1 * float64(differential)
+	if len(UserTree[userId].Branch) > 0 {
+		for _, branch := range UserTree[userId].Branch {
+			if UserTree[branch].Level < UserTree[userId].Level {
+				AccumulatedPower += getCommunityPromotionPower(branch, differential)
+			} else if UserTree[branch].Level >= UserTree[userId].Level && UserTree[branch].Level < UserTree[userId].Level+differential {
+				AccumulatedPower += getCommunityPromotionPower(branch, UserTree[userId].Level+differential-UserTree[branch].Level)
+			} else {
+				return AccumulatedPower
+			}
+		}
+	}
+
+	return AccumulatedPower
+
 }
 
 // GetAssociate 用户下级用户
@@ -65,6 +117,44 @@ func UserPurchase(userId uint, count float64) {
 		Level:         UserTree[userId].Level,
 		Branch:        UserTree[userId].Branch,
 	}
+}
+
+// UserLevelCheck 用户等级核算
+func UserLevelCheck(userId uint) int64 {
+	if UserTree[userId].Level < 5 {
+		switch UserTree[userId].Level {
+		case 0:
+			maxBranchPower := float64(0)
+			allBranchPower := float64(0)
+			if len(UserTree[userId].Branch) > 0 {
+				for _, branch := range UserTree[userId].Branch {
+					branchPower := GetBranchAccumulatedPower(branch)
+					if branchPower > maxBranchPower {
+						maxBranchPower = branchPower
+					}
+					allBranchPower += branchPower
+				}
+			}
+			if allBranchPower > 25 {
+				return 1
+			}
+		default:
+			count := 0
+			if len(UserTree[userId].Branch) > 0 {
+				for _, branch := range UserTree[userId].Branch {
+					if UserTree[branch].Level > UserTree[userId].Level {
+						count++
+					}
+				}
+			}
+			if count > 2 {
+				return UserTree[userId].Level + 1
+			}
+
+		}
+
+	}
+	return UserTree[userId].Level
 }
 
 // PowerLose 算力合约到期

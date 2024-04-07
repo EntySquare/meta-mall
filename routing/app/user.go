@@ -150,7 +150,7 @@ func MyPromotion(c *fiber.Ctx) error {
 	}
 	data := types.MyPromotionResp{
 		AllPromotionPower:           api.GetBranchAccumulatedPower(0),
-		MyPromotionPower:            api.GetBranchAccumulatedPower(userId),
+		MyPromotionPower:            api.GetUserPromotionPower(userId),
 		MyPromotionBenefit:          mb + mrb,
 		MyAvailablePromotionBenefit: mb,
 	}
@@ -255,7 +255,47 @@ func GetAvailableBenefit(c *fiber.Ctx) error {
 	}
 	return c.JSON(pkg.SuccessResponse(""))
 }
-
+func ApplyForMember(c *fiber.Ctx) error {
+	//userId := c.Locals("user_id")
+	userId := c.Locals(config.LOCAL_USERID_UINT).(uint)
+	user := model.User{}
+	user.ID = userId
+	err := user.GetById(database.DB)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.TOKEN_FAIL, err.Error(), "查询用户失败"))
+	}
+	reqParams := types.ApplyForMemberReq{}
+	err = c.BodyParser(&reqParams)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "parser error", ""))
+	}
+	manager := model.Manager{}
+	manager.UserName = user.WalletAddress
+	err = manager.GetByUsername(database.DB)
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "", ""))
+		} else {
+			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "you already apply for membership", ""))
+		}
+	}
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		newManager := model.Manager{
+			UserName: user.WalletAddress,
+			Password: reqParams.Password,
+			Flag:     "0",
+		}
+		_, err := newManager.InsertNewManager(tx)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "insert error", ""))
+	}
+	return c.JSON(pkg.SuccessResponse(""))
+}
 func getLastDay() int64 {
 	currentTime := time.Now()
 	oldTime := currentTime.AddDate(0, 0, -1)

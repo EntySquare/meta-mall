@@ -57,3 +57,13 @@ func (ni *NftInfo) GetMaxTokenId(db *gorm.DB) (int64, error) {
 		return 0, err
 	}
 }
+func (ni *NftInfo) GetAllNftInfoByOwner(db *gorm.DB) (ns []NftInfo, err error) {
+	ns = make([]NftInfo, 0)
+	err = db.Model(&NftInfo{}).Where("flag in ('0','1','2','3') and owner_address", ni.OwnerAddress).Find(&ns).Error
+	return ns, err
+}
+func (ni *NftInfo) GetAllNftInfo(db *gorm.DB) (ns []NftInfo, err error) {
+	ns = make([]NftInfo, 0)
+	err = db.Model(&NftInfo{}).Where("flag in ('0','1','2','3')").Find(&ns).Error
+	return ns, err
+}

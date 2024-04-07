@@ -10,5 +10,4 @@ func TestRunP(t *testing.T) {
 	IncomeRunP(database.DB)
 	//IncomeRunP(database.DB)
 	//ContractCycle(database.DB)
-
 }

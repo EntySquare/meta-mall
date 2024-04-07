@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"meta-mall/database"
 	"meta-mall/model"
+	"meta-mall/model/api"
 	"testing"
 )
 
@@ -23,49 +24,10 @@ func TestInsertUser(t *testing.T) {
 	}).Error
 	fmt.Println(err)
 }
-func TestInsertAccount(t *testing.T) {
-	database.ConnectDB()
-	err := database.DB.Create(&model.Account{
-		UserId:            1,
-		USDTBalance:       0,
-		USDTFrozenBalance: 0,
-		UNCBalance:        0,
-		UNCFrozenBalance:  0,
-		Flag:              "1",
-	}).Error
-	err = database.DB.Create(&model.Account{
-		UserId:            2,
-		USDTBalance:       0,
-		USDTFrozenBalance: 0,
-		UNCBalance:        0,
-		UNCFrozenBalance:  0,
-		Flag:              "1",
-	}).Error
-	err = database.DB.Create(&model.Account{
-		UserId:            4,
-		USDTBalance:       0,
-		USDTFrozenBalance: 0,
-		UNCBalance:        0,
-		UNCFrozenBalance:  0,
-		Flag:              "1",
-	}).Error
-	err = database.DB.Create(&model.Account{
-		UserId:            3,
-		USDTBalance:       0,
-		USDTFrozenBalance: 0,
-		UNCBalance:        0,
-		UNCFrozenBalance:  0,
-		Flag:              "1",
-	}).Error
-	err = database.DB.Create(&model.Account{
-		UserId:            5,
-		USDTBalance:       0,
-		USDTFrozenBalance: 0,
-		UNCBalance:        0,
-		UNCFrozenBalance:  0,
-		Flag:              "1",
-	}).Error
-	fmt.Println(err)
+func TestRunPassword(t *testing.T) {
+	input := "123456"
+	new := api.Get256Pw(input)
+	println(new)
 }
 func TestInsertManager(t *testing.T) {
 	database.ConnectDB()

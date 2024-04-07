@@ -33,7 +33,7 @@ func main() {
 		fmt.Println(err.Error())
 	}
 
-	//InitTask()
+	InitTask()
 	go scanContract(database.DB)
 	//  go eth.ScanEth(database.DB)
 	routing.Setup(fiberApp)
@@ -92,7 +92,7 @@ func scanContract(db *gorm.DB) {
 						return err
 					}
 					nft.Flag = "0"
-					err = nft.UpdateNftInfo(db)
+					err = nft.UpdateNftInfo(tx)
 					if err != nil {
 						return err
 					}
@@ -103,11 +103,11 @@ func scanContract(db *gorm.DB) {
 						return err
 					}
 					order.Flag = "2"
-					err := order.UpdateOrder(db)
+					err := order.UpdateOrder(tx)
 					if err != nil {
 						return err
 					}
-					err = v.UpdateContract(db)
+					err = v.UpdateContract(tx)
 					if err != nil {
 						return err
 					}
@@ -119,28 +119,9 @@ func scanContract(db *gorm.DB) {
 						return err
 					}
 					if user.RecommendId != 0 {
-						recommend := model.User{}
-						recommend.ID = user.RecommendId
-						err := recommend.GetById(db)
+						err = updateTreeUserLevel(tx, user)
 						if err != nil {
 							return err
-						}
-						userList := api.GetAssociate(recommend.ID)
-						var biggestU uint
-						biggestP := 0.0
-						allP := 0.0
-						for _, u := range userList {
-							p := api.GetBranchAccumulatedPower(u) + api.UserTree[u].Power
-							if biggestP < p {
-								biggestU = u
-								biggestP = p
-								allP += p
-							}
-						}
-						println(biggestU)
-						levelp := allP - biggestP
-						if levelp > 0 {
-
 						}
 					}
 
@@ -154,4 +135,21 @@ func scanContract(db *gorm.DB) {
 		}
 		time.Sleep(time.Second * 60)
 	}
+}
+func updateTreeUserLevel(tx *gorm.DB, user model.User) error {
+	newLevel := api.UserLevelCheck(user.RecommendId)
+	user.Level = newLevel
+	err := user.UpdateUserLevel(tx)
+	if err != nil {
+		return err
+	}
+	if user.RecommendId != 0 {
+		recommender := model.User{}
+		recommender.ID = user.RecommendId
+		err := updateTreeUserLevel(tx, recommender)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

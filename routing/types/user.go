@@ -95,3 +95,6 @@ type GetAvailableBenefitReq struct {
 	TokenName string `json:"token_name"`
 	Type      string `json:"type"` //1-自有 2-推广
 }
+type ApplyForMemberReq struct {
+	Password string `json:"password"`
+}

@@ -38,6 +38,9 @@ func (u *Manager) InsertNewManager(db *gorm.DB) (id uint, err error) {
 		return u.ID, nil
 	}
 }
+func (m *Manager) UpdateManager(db *gorm.DB) error {
+	return db.Model(&m).Updates(m).Error
+}
 
 // ManagerrSelectIdByToken token查询用户数据 token = "HASH"
 func ManagerSelectIdByToken(db *gorm.DB, token string) (username string, tokenData string, err error) {
@@ -68,4 +71,9 @@ func ManagerRefreshToken(db *gorm.DB, username string, token string) (err error)
 		return errors.New("res.RowsAffected == 0")
 	}
 	return nil
+}
+func (m *Manager) SelectApplyList(db *gorm.DB) (as []Manager, err error) {
+	as = make([]Manager, 0)
+	err = db.Model(&Manager{}).Where("flag in ('0','2')").Find(&as).Error
+	return as, err
 }

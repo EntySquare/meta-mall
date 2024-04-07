@@ -60,7 +60,7 @@ func IncomeRunP(db *gorm.DB) error {
 				mb += round((UncAmount*mp*rate*6)/(ap*10), 4)
 			}
 			if GetBranchAccumulatedPower(0) != 0 {
-				mb += round((GetBranchAccumulatedPower(v.OwnerId)*4)/(GetBranchAccumulatedPower(0)*10), 4)
+				mb += round((GetUserPromotionPower(v.OwnerId)*4)/(GetBranchAccumulatedPower(0)*10), 4)
 			}
 
 			cf := model.ContractFlow{
@@ -77,7 +77,7 @@ func IncomeRunP(db *gorm.DB) error {
 				mb2 += round((MetaAmount*mp*rate*6)/(ap*10), 4)
 			}
 			if GetBranchAccumulatedPower(0) != 0 {
-				mb2 += round((GetBranchAccumulatedPower(v.OwnerId)*4)/(GetBranchAccumulatedPower(0)*10), 4)
+				mb2 += round((GetUserPromotionPower(v.OwnerId)*4)/(GetBranchAccumulatedPower(0)*10), 4)
 			}
 			cf2 := model.ContractFlow{
 				UserId:      v.OwnerId,

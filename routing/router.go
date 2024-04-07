@@ -25,6 +25,7 @@ func AppSetUp(appApi fiber.Router) {
 	appApi.Post("/getMyPromotionList", intcpt.AuthApp(), app.MyInvestment)
 	appApi.Post("/getMyPromotion", intcpt.AuthApp(), app.MyPromotion)
 	appApi.Post("/getAvailableBenefit", intcpt.AuthApp(), app.GetAvailableBenefit)
+	appApi.Post("/applyForMember", intcpt.AuthApp(), app.ApplyForMember)
 
 	appApi.Post("/manager/insertNft", intcpt.AuthManagerApp(), app.InsertNft)
 	appApi.Post("/manager/tokenIdFrom", intcpt.AuthManagerApp(), app.TokenIdFrom)
@@ -34,6 +35,10 @@ func AppSetUp(appApi fiber.Router) {
 	appApi.Post("/manager/uploadIMG", intcpt.AuthManagerApp(), app.UploadIMG) //上传
 	appApi.Post("/manager/setIncome", intcpt.AuthManagerApp(), app.SetIncome)
 	appApi.Post("/manager/getIncome", intcpt.AuthManagerApp(), app.GetIncome)
+	appApi.Post("/manager/getMemberList", intcpt.AuthManagerApp(), app.GetMemberList)
+	appApi.Post("/manager/createNewMember", intcpt.AuthManagerApp(), app.CreateNewMember)
+	appApi.Post("/manager/offMember", intcpt.AuthManagerApp(), app.ChangeMemberStatus)
+
 	//appApi.Post("/deposit", intcpt.AuthApp(), app.Deposit)
 	//appApi.Post("/withdraw", intcpt.AuthApp(), app.Withdraw)
 	//appApi.Post("/checkHash", intcpt.AuthApp(), app.CheckHashApi)

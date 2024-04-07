@@ -82,6 +82,16 @@ func (u *User) UpdateUserToken(db *gorm.DB) error {
 	}
 	return nil
 }
+func (u *User) UpdateUserLevel(db *gorm.DB) error {
+	res := db.Model(&u).Where("id = ?", u.ID).Update("level", u.Level)
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return errors.New("res.RowsAffected == 0")
+	}
+	return nil
+}
 
 // UserSelectIdByToken token查询用户数据 token = "HASH"
 func UserSelectIdByToken(db *gorm.DB, token string) (userId int64, tokenData string, err error) {
